@@ -166,14 +166,21 @@ const BSIG={
  deity:{tele:v=>{[523,659,784].forEach((f,i)=>tn(f,f*1.2,.5,'sine',.05*v,i*.06))},act:v=>{tn(1568,1568,.5,'sine',.07*v);tn(2093,2093,.4,'sine',.04*v,.04);nz(.25,.12*v,5000,800,'highpass')}}};
 bsfx=function(k){const B=CB,f=BI[B&&BI[B.id]?B.id:'ember'];f(k,B)};
 const _ub3=updBoss;updBoss=function(B,dt){CB=B;const ps=B.st;_ub3(B,dt);if(B.dead||!P||B.st===ps)return;const g=BSIG[B.id],v=near(B.x+B.w/2);if(!g)return;if(B.st==='tele')g.tele(v);else if(B.st==='act')g.act(v)};
-const _hb=hitBoss;hitBoss=function(B){CB=B;const bad=['dormant','intro','phase','dying'].includes(B.st);_hb(B);if(!bad&&BHIT[B.id])BHIT[B.id]()};
+const A1=['judgment','halo','smite','blink'];
+const _hb=hitBoss;hitBoss=function(B){CB=B;const bad=['dormant','intro','phase','dying'].includes(B.st),ph0=B.ph,fu0=B.fury;_hb(B);if(!bad&&BHIT[B.id])BHIT[B.id]();
+ if(B.id==='deity'&&!bad&&B.hp>0){const d=B.def;
+  if(!B.p2&&B.hp<=B.max*.75){B.p2=1;d.a1.push('seraph','heavenfall');B.st='phase';B.t=1.4;B.vx=0;zones=[];projs=[];toast('PHASE II \u2014 The Deity ascends');bsfx(2)}
+  if(B.ph===2&&ph0===1){d.a2=d.a1.concat(['chorus','nova','wall']);toast('PHASE III \u2014 Heaven burns')}
+  if(B.fury&&!fu0){d.a2.push('spiral','cataclysm','sunder');toast('PHASE IV \u2014 Judgment Day')}}};
+const _bh=bossHud;bossHud=function(){_bh();const B=enemies.find(e=>e.boss&&!e.dead&&e.st!=='dormant');if(!B||B.id!=='deity')return;const n=B.fury?4:B.ph===2?3:B.p2?2:1;
+ cx.save();cx.textAlign='center';cx.font='bold 10px Georgia';cx.fillStyle='#ffe08a';cx.shadowColor='#000';cx.shadowBlur=3;cx.fillText('PHASE '+['','I','II','III','IV'][n],cv.width/2,cv.height-68);cx.restore()};
 
 // ---------- 11. The Nameless Deity (final boss) ----------
-const DEITY={id:'deity',cx:40,fy:26,hw:32,ht:20,g:6,side:1,bg:['#2a1f5a','#ffe9b0'],pl:[[-26,5,8],[18,5,8],[-5,10,10],[-19,14,6],[13,14,6],[-3,17,6]]};
-BD.deity={n:'The Nameless Deity',sub:'Warden of the Last Gate',tier:5,hp:Math.round(BD.hollow.hp*1.25),pmax:Math.round(BD.hollow.pmax*1.25),w:26,h:50,spd:Math.round(BD.hollow.spd*1.25),dmg:Math.round(BD.hollow.dmg*1.25),
+const DEITY={id:'deity',cx:60,fy:28,hw:50,ht:24,g:6,side:1,bg:['#2a1f5a','#ffe9b0'],pl:[[-44,5,10],[34,5,10],[-8,10,16],[-32,14,9],[24,14,9],[-5,18,10],[-46,20,6],[40,20,6]]};
+BD.deity={n:'The Nameless Deity',sub:'The Void That Watches',tier:5,hp:67000,pmax:Math.round(BD.hollow.pmax*1.25),w:26,h:50,spd:Math.round(BD.hollow.spd*1.25),dmg:Math.round(BD.hollow.dmg*1.25),
  pd:Math.round(BD.hollow.pd*1.25),reach:Math.round(BD.hollow.reach*1.25),jv:0,zc:'255,226,140',wpn:'voidfang',col:['#f4efe0','#d9a441'],sn:3,ps:Math.round(BD.hollow.ps*1.25),fly:1,amb:3.2,aw:30,
- a1:['judgment','halo','smite','blink'],a2:['judgment','halo','seraph','smite','blink','heavenfall','chorus']};
-Object.assign(HINT,{judgment:'LIGHT FALLS',halo:'FIND THE GAP',seraph:'BLADES RAIN',smite:'PARRY / BACK OFF',blink:'BEHIND YOU',heavenfall:'RUN',chorus:'WEAVE THROUGH'});
+ a1:['judgment','halo','smite','blink'],a2:['judgment','halo','smite','blink','seraph','heavenfall','chorus','nova','wall']};
+Object.assign(HINT,{judgment:'LIGHT FALLS',halo:'FIND THE GAP',seraph:'BLADES RAIN',smite:'PARRY / BACK OFF',blink:'BEHIND YOU',heavenfall:'RUN',chorus:'WEAVE THROUGH',cataclysm:'FIND THE GAP',sunder:'BACK OFF'});
 const dm_=B=>B.def.dmg*(B.er||1),GOLD='rgb(255,226,140)';
 Object.assign(AT,{
  judgment:{wu:.95,act:1.5,rec:1.2,f(B){const px=P.x+6+P.vx*.45,g=B.ph===2?1.15:1;[-3,-2,-1,0,1,2,3].forEach(o=>bzone(B,px+o*50*g,.85+Math.abs(o)*.17,28))}},
@@ -184,8 +191,11 @@ Object.assign(AT,{
  blink:{wu:.55,act:1.1,rec:1.0,f(B){const a=B.ar,tx=P.x+6+(P.face>0?-58:58);B.tp=Math.max((a.cx-a.hw+2)*T,Math.min((a.cx+a.hw-2)*T,tx))-B.w/2;B.tl=.8;B.vis=.15;bzone(B,B.tp+B.w/2,.8,54,true)},
   tk(B,dt){if(B.tp!=null){B.tl-=dt;if(B.tl<=0){burst(bcx(B),bcy(B),16,'#ffe9a0');B.x=B.tp;B.tp=null;B.vis=1;B.face=P.x>bcx(B)?1:-1;burst(bcx(B),bcy(B),20,'#fff');shake=5;bhit(B,B.def.reach*1.1,1.2);
    const o=Math.random()*6.283;for(let i=0;i<10;i++){const a=o+i/10*6.283;proj(bcx(B),bcy(B),Math.cos(a)*190,Math.sin(a)*190,dm_(B)*.45,GOLD,B.def.pd*.4,4)}}}}},
- heavenfall:{wu:1.0,act:2.2,rec:1.3,f(B){const a=B.ar;for(let i=0;i<14;i++)bzone(B,(a.cx+(Math.random()-.5)*a.hw*1.8)*T,1.1+i*.1,18);bzone(B,P.x+6,1.2,22);B.qa=0;B.qn=0},
+ heavenfall:{wu:1.0,act:2.2,rec:1.3,f(B){const a=B.ar;for(let i=0;i<Math.round(a.hw*.7);i++)bzone(B,(a.cx+(Math.random()-.5)*a.hw*1.8)*T,1.1+i*.06,18);bzone(B,P.x+6,1.2,22);B.qa=0;B.qn=0},
   tk(B,dt){B.qa-=dt;if(B.qa<=0&&B.qn<10){B.qa=.2;B.qn++;const a=B.ar;proj((a.cx+(Math.random()-.5)*a.hw*1.9)*T,(a.fy-a.ht+1)*T,(Math.random()-.5)*40,230,dm_(B)*.5,'rgb(255,200,90)',B.def.pd*.5,6)}}},
+ cataclysm:{wu:1.2,act:3.0,rec:1.4,f(B){const a=B.ar,x0=(a.cx-a.hw+2)*T,x1=(a.cx+a.hw-2)*T;for(let k=0;k<3;k++){const gc=Math.max(x0+60,Math.min(x1-60,P.x+6+(k?(Math.random()<.5?-1:1)*(100+Math.random()*140):(Math.random()-.5)*60))),t=1.4+k*.9;for(let x=x0;x<x1;x+=34)if(Math.abs(x-gc)>44)bzone(B,x,t,36)}B.qa=0;B.qn=0;shake=Math.max(shake,4)},
+  tk(B,dt){B.qa-=dt;if(B.qa<=0&&B.qn<12){B.qa=.22;B.qn++;const a=B.ar;proj((a.cx+(Math.random()-.5)*a.hw*1.9)*T,(a.fy-a.ht+1)*T,0,240,dm_(B)*.5,'rgb(255,200,90)',B.def.pd*.5,6)}}},
+ sunder:{wu:.6,act:1.3,rec:1.0,f(B){B.sc=0;B.sn3=0},tk(B,dt){B.sc-=dt;if(B.sc<=0&&B.sn3<3){B.sc=.38;B.sn3++;B.face=P.x>bcx(B)?1:-1;shake=Math.max(shake,6);sfx.hit();bhit(B,B.def.reach*1.3,1.1);const o=Math.random()*6.283;for(let i=0;i<8;i++){const an=o+i/8*6.283;proj(bcx(B),bcy(B),Math.cos(an)*200,Math.sin(an)*200,dm_(B)*.4,GOLD,B.def.pd*.4,4)}for(const s of[-1,1])proj(bcx(B),B.ar.fy*T-8,s*240,0,dm_(B)*.5,GOLD,B.def.pd*.5,6)}}},
  chorus:{wu:.9,act:2.6,rec:1.2,f(B){B.ca=Math.random()*6.283;B.cs=0},tk(B,dt){B.cs-=dt;if(B.cs<=0){B.cs=B.fury?.1:.13;B.ca+=.43;const arms=B.fury?4:3,sp=(B.def.ps||200)*.8*(1+.25*Math.sin(B.ca*.5));
    for(let i=0;i<arms;i++){const a=B.ca+i*6.283/arms;proj(bcx(B),bcy(B),Math.cos(a)*sp,Math.sin(a)*sp,dm_(B)*.42,'rgb(255,236,170)',B.def.pd*.4,4)}}}}});
 // deity attack sounds (the generic hook in extras.js plays BSND[atk] at the start of each attack)
@@ -196,6 +206,8 @@ Object.assign(AT,{
  smite:v8(v=>{tone(220,40,.5,'sine',.3*v);noise(.4,.25*v,3000,150,'bandpass');tone(1568,1568,.4,'sine',.08*v)}),
  blink:v8(v=>{tone(2600,300,.4,'sine',.1*v);noise(.4,.15*v,8000,800,'highpass')}),
  heavenfall:v8(v=>{noise(1.4,.25*v,2000,80,'lowpass');tone(1200,100,1.2,'sine',.1*v)}),
+ cataclysm:v8(v=>{noise(1.8,.3*v,3000,60,'lowpass');[262,330,392,523].forEach((f,i)=>tone(f,f*.5,1.6,'sawtooth',.06*v,i*.1));tone(1976,300,1.2,'sine',.1*v)}),
+ sunder:v8(v=>{for(let i=0;i<3;i++){tone(180,40,.3,'sine',.25*v,i*.38);noise(.25,.2*v,2500,150,'bandpass',1,i*.38)}}),
  chorus:v8(v=>{[392,494,588,784].forEach((f,i)=>tone(f,f*1.01,1.4,'sine',.07*v,i*.08))})});
  const _ch=BSND.charge;BSND.charge=function(B,v){if(B.id==='deity'){tone(330,990,.7,'sine',.09*v);tone(495,1485,.7,'triangle',.05*v);noise(.6,.06*v,3000,6000,'bandpass',2)}else _ch(B,v)}}
 
@@ -204,9 +216,9 @@ ARB.deity=function(a,X0,Y0,W2,H2,FY,L){const t=time,mx=X0+W2/2,cy=Y0+H2*.38;
  AD(()=>{cx.save();cx.translate(mx,cy);cx.rotate(t*.12);for(let i=0;i<16;i++){cx.rotate(.3927);PL([0,0,-9,-260,9,-260],'rgba(255,240,190,'+(.08+.04*Math.sin(t*2+i))+')')}cx.restore()});
  cx.save();cx.translate(mx,cy);cx.strokeStyle='rgba(255,226,140,.65)';cx.lineWidth=3;cx.beginPath();cx.arc(0,0,64,0,7);cx.stroke();cx.lineWidth=2;cx.setLineDash([5,7]);cx.lineDashOffset=-t*18;cx.beginPath();cx.arc(0,0,86,0,7);cx.stroke();cx.lineDashOffset=t*24;cx.beginPath();cx.arc(0,0,108,0,7);cx.stroke();cx.setLineDash([]);
  for(let i=0;i<12;i++){const an=i*.5236+t*.2;FR(Math.cos(an)*124-1.5,Math.sin(an)*124-1.5,3,3,'#ffe08a')}cx.restore();
- for(let i=0;i<8;i++){const x=X0+W2*(i+.5)/8,ch=H2-32;FR(x-7,FY-ch,14,ch,'rgba(250,244,255,.78)');FR(x-7,FY-ch,3,ch,'rgba(255,255,255,.55)');FR(x+4,FY-ch,3,ch,'rgba(160,140,200,.4)');FR(x-10,FY-ch-5,20,6,'#d9a441');FR(x-10,FY-8,20,8,'#d9a441');L.push([x,FY-ch*.6,70])}
+ for(let i=0;i<14;i++){const x=X0+W2*(i+.5)/14,ch=H2-32;FR(x-7,FY-ch,14,ch,'rgba(250,244,255,.78)');FR(x-7,FY-ch,3,ch,'rgba(255,255,255,.55)');FR(x+4,FY-ch,3,ch,'rgba(160,140,200,.4)');FR(x-10,FY-ch-5,20,6,'#d9a441');FR(x-10,FY-8,20,8,'#d9a441');L.push([x,FY-ch*.6,70])}
  for(let i=0;i<9;i++){const x=X0+((i*97+t*(5+i%3*3))%(W2+140))-70,y=FY-14-(i%3)*6;cx.fillStyle='rgba(255,255,255,'+(.35+.1*(i%3))+')';for(let k=0;k<4;k++){cx.beginPath();cx.arc(x+k*14,y+(k%2)*4,13-k,0,7);cx.fill()}}
- for(let i=0;i<46;i++)FR(X0+((i*89+Math.sin(t*.6+i)*16)%W2+W2)%W2,Y0+((i*53-t*(8+i%5*3))%H2+H2)%H2,1.5,1.5,'rgba(255,240,170,.85)');
+ for(let i=0;i<80;i++)FR(X0+((i*89+Math.sin(t*.6+i)*16)%W2+W2)%W2,Y0+((i*53-t*(8+i%5*3))%H2+H2)%H2,1.5,1.5,'rgba(255,240,170,.85)');
  const fg=cx.createLinearGradient(0,FY-46,0,FY);fg.addColorStop(0,'rgba(255,226,140,0)');fg.addColorStop(1,'rgba(255,226,140,.4)');cx.fillStyle=fg;cx.fillRect(X0,FY-46,W2,46)};
 BS.deity=function(B,p,ac,st){const en=B.ph===2,t=time,pu=.5+.5*Math.sin(t*4);
  orb(0,24,96+pu*14,'rgba(255,225,140,'+(.28+.12*pu)+')');
@@ -231,7 +243,7 @@ function drawPortal(ox,oy,L){if(!portalOn())return;const p=portalPos(),X=Math.ro
  for(let i=0;i<10;i++){const lf=(t*.5+i*.1)%1;FR(X+Math.sin(i*5+t)*12,Y-4-lf*70,1.6,1.6,'rgba(255,240,170,'+(1-lf)+')')}
  L.push([X,Y-34,170]);cx.save();cx.textAlign='center';cx.font='bold 8px Georgia';cx.shadowColor='#fb4';cx.shadowBlur=6;cx.fillStyle='#fff2c0';cx.fillText('\u2726 PORTAL TO HEAVEN \u2726',X,Y-84);
  if(nearPortal()){cx.fillStyle='#fff';cx.fillText('[E] Enter',X,Y-74)}cx.restore()}
-const _dsp3=drawSpawn;drawSpawn=function(ox,oy,L){_dsp3(ox,oy,L);drawPortal(ox,oy,L)};
+const _dsp3=drawSpawn;drawSpawn=function(ox,oy,L){if(inHeaven)return;_dsp3(ox,oy,L);drawPortal(ox,oy,L)};
 
 // ----- dialogue -----
 let dlg=null;
@@ -253,7 +265,7 @@ function genHeaven(){const t=new Uint8Array(W*H),a=DEITY,x0=a.cx-a.hw,x1=a.cx+a.
  for(const[px,py,ln]of a.pl)for(let k=0;k<ln;k++){t[(a.fy-py)*W+a.cx+px+k]=3;t[(a.fy-py+1)*W+a.cx+px+k]=3}
  return t}
 function enterHeaven(){if(inHeaven)return;inHeaven=true;
- HOME={tiles,enemies,chests,zones,projs,GATES,ARCHES,seen};
+ HOME={tiles,enemies,chests,zones,projs,GATES,ARCHES,seen,SHOP,QG,ENCP};SHOP=QG=ENCP=null;BD.deity.a1=A1.slice();BD.deity.a2=A1.concat(['seraph','heavenfall','chorus','nova','wall']);
  tiles=genHeaven();enemies=[];chests=[];zones=[];projs=[];parts=[];GATES=[];ARCHES=[];seen=new Uint8Array(W*H);
  ARENAS.push(DEITY);BP[0]=HEAVP;BG[0]='#ffe08a';
  P.lives=1;P.hp=maxHp();P.stam=maxStam();P.post=0;P.inv=2;P.stun=0;P.guardBroken=0;P.dodge=0;P.atk=0;P.x=(DEITY.cx-DEITY.hw+4)*T;P.y=DEITY.fy*T-22;P.vx=P.vy=0;P.face=1;
@@ -261,7 +273,7 @@ function enterHeaven(){if(inHeaven)return;inHeaven=true;
  mkBosses();enemies=enemies.filter(e=>e.id==='deity');paused=false;shake=8;
  toast('\u2726 Lives set to 1 \u2014 there is no second chance \u2726');tone(220,880,1.4,'sine',.1);tone(330,1320,1.4,'sine',.07,.1)}
 function leaveHeaven(){if(!inHeaven)return;inHeaven=false;const i=ARENAS.indexOf(DEITY);if(i>=0)ARENAS.splice(i,1);delete BP[0];delete BG[0];
- if(HOME){tiles=HOME.tiles;GATES=HOME.GATES;ARCHES=HOME.ARCHES;seen=HOME.seen;HOME=null}}
+ if(HOME){tiles=HOME.tiles;GATES=HOME.GATES;ARCHES=HOME.ARCHES;seen=HOME.seen;SHOP=HOME.SHOP;QG=HOME.QG;ENCP=HOME.ENCP;HOME=null}}
 const _sv=save;save=function(){if(inHeaven||!P)return;_sv()};
 const _st=start;start=function(n){leaveHeaven();musStop();return _st(n)};
 const _er=endRun;endRun=function(){leaveHeaven();musStop();return _er()};
