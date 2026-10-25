@@ -131,16 +131,16 @@ const SPL={own:[],z:null,x:null,cd:{}};
 function aoe(r,fn,col){const px=P.x+6,py=P.y+11;let n=0;for(const e of enemies){if(e.dead||(e.boss&&(e.st==='dormant'||e.st==='intro')))continue;if(Math.hypot(e.x+e.w/2-px,e.y+e.h/2-py)<r){fn(e);n++;burst(e.x+e.w/2,e.y+e.h/2,6,col)}}
  for(let i=0;i<28;i++){const a=i/28*6.283;parts.push({x:px,y:py,vx:Math.cos(a)*r*1.3,vy:Math.sin(a)*r*1.3,l:.4,c:col})}return n}
 const SPD=[
- {id:'bulwark',n:'Bulwark',g:500,st:25,cd:14,t:'self',d:'Take 35% less damage for 8s.',fn(){P.sb.bul=8}},
- {id:'windrun',n:'Windrunner',g:600,st:20,cd:14,t:'self',d:'+45% move speed for 8s.',fn(){P.sb.wind=8}},
+ {id:'bulwark',n:'Bulwark',g:1000,st:25,cd:48,t:'self',d:'Take 35% less damage for 8s.',fn(){P.sb.bul=8}},
+ {id:'windrun',n:'Windrunner',g:1000,st:20,cd:14,t:'self',d:'+45% move speed for 8s.',fn(){P.sb.wind=8}},
  {id:'frost',n:'Frostbind',g:700,st:30,cd:12,t:'debuff',d:'Slows nearby enemies for 4s; bosses suffer posture damage.',fn(){aoe(170,e=>{if(e.boss)e.post+=70;else e.slow=4},'#8ef')}},
- {id:'mend',n:'Mending Light',g:800,st:30,cd:18,t:'self',d:'Heal 7 HP per second for 6s.',fn(){P.sb.mend=6}},
- {id:'zerk',n:"Berserker's Rite",g:900,st:35,cd:16,t:'self',d:'+40% damage for 8s.',fn(){P.sb.zerk=8}},
- {id:'hex',n:'Hex of Frailty',g:1000,st:35,cd:16,t:'debuff',d:'Nearby enemies and bosses take +30% damage for 8s.',fn(){aoe(230,e=>{e.frail=8},'#c8f')}},
- {id:'trance',n:'Battle Trance',g:1200,st:20,cd:20,t:'self',d:'Stamina surges (+22 per second) for 8s.',fn(){P.sb.tr=8}},
- {id:'terror',n:'Terror',g:1300,st:45,cd:22,t:'debuff',d:'Staggers nearby enemies for 2s; bosses suffer heavy posture damage.',fn(){aoe(190,e=>{if(e.boss)e.post+=90;else{e.st='stagger';e.t=2.2;e.vx=0}},'#f6a')}},
- {id:'phase',n:'Phase Shroud',g:1600,st:50,cd:25,t:'self',d:'Become invulnerable for 2.5s.',fn(){P.inv=Math.max(P.inv,2.5);P.sb.phase=2.5}},
- {id:'curse',n:'Withering Curse',g:1800,st:40,cd:20,t:'debuff',d:'Nearby enemies and bosses deal 35% less damage for 8s.',fn(){aoe(230,e=>{e.weak=8},'#9c9')}}];
+ {id:'mend',n:'Mending Light',g:1800,st:30,cd:25,t:'self',d:'Heal 7 HP per second for 6s.',fn(){P.sb.mend=6}},
+ {id:'zerk',n:"Berserker's Rite",g:1900,st:35,cd:48,t:'self',d:'+40% damage for 8s.',fn(){P.sb.zerk=8}},
+ {id:'hex',n:'Hex of Frailty',g:2000,st:35,cd:16,t:'debuff',d:'Nearby enemies and bosses take +30% damage for 8s.',fn(){aoe(230,e=>{e.frail=8},'#c8f')}},
+ {id:'trance',n:'Battle Trance',g:2200,st:20,cd:20,t:'self',d:'Stamina surges (+22 per second) for 8s.',fn(){P.sb.tr=8}},
+ {id:'terror',n:'Terror',g:2300,st:45,cd:60,t:'debuff',d:'Staggers nearby enemies for 2s; bosses suffer heavy posture damage.',fn(){aoe(190,e=>{if(e.boss)e.post+=90;else{e.st='stagger';e.t=2.2;e.vx=0}},'#f6a')}},
+ {id:'phase',n:'Phase Shroud',g:2600,st:50,cd:45,t:'self',d:'Become invulnerable for 2.5s.',fn(){P.inv=Math.max(P.inv,2.5);P.sb.phase=2.5}},
+ {id:'curse',n:'Withering Curse',g:2800,st:40,cd:60,t:'debuff',d:'Nearby enemies and bosses deal 35% less damage for 8s.',fn(){aoe(230,e=>{e.weak=8},'#9c9')}}];
 function spCost(s){return Math.max(5,Math.round(s.st*(1-.06*(meta.up.spellc||0))))}
 function castSpell(sl){if(!P||P.dead||paused||P.stun>0)return;const id=SPL[sl];if(!id)return;const s=SPD.find(x=>x.id===id);if(!s)return;
  if((SPL.cd[id]||0)>0){toast(s.n+' \u00b7 '+Math.ceil(SPL.cd[id])+'s');return}const c=spCost(s);if(P.stam<c){toast('Not enough stamina');return}
@@ -308,7 +308,7 @@ const _bh=bossHud;bossHud=function(){const B=enemies.find(e=>e.boss&&!e.dead&&e.
 
 // ---------- 11. The Nameless Deity (final boss) ----------
 const DEITY={id:'deity',cx:60,fy:28,hw:50,ht:24,g:6,side:1,bg:['#cfd0d6','#f6f6f8'],pl:[[-44,5,10],[34,5,10],[-8,10,16],[-32,14,9],[24,14,9],[-5,18,10],[-46,20,6],[40,20,6]]};
-BD.deity={n:'The Nameless Deity',sub:'The Void That Watches',tier:5,hp:100000,pmax:Math.round(BD.hollow.pmax*1.25),w:26,h:50,spd:Math.round(BD.hollow.spd*1.25),dmg:Math.round(BD.hollow.dmg*1.25),
+BD.deity={n:'The Nameless Deity',sub:'The Void That Watches',tier:5,hp:250000,pmax:Math.round(BD.hollow.pmax*1.25),w:26,h:50,spd:Math.round(BD.hollow.spd*1.25),dmg:Math.round(BD.hollow.dmg*1.25),
  pd:Math.round(BD.hollow.pd*1.25),reach:Math.round(BD.hollow.reach*1.25),jv:0,zc:'70,120,235',wpn:'voidfang',col:['#e9e6df','#1a1a1f'],sn:3,ps:Math.round(BD.hollow.ps*1.25*1.2),fly:1,amb:3.2,aw:30,
  a1:['judgment','halo','smite','blink'],a2:['judgment','halo','smite','blink','seraph','heavenfall','chorus','nova','wall']};
 Object.assign(HINT,{judgment:'LIGHT FALLS',halo:'FIND THE GAP',seraph:'BLADES RAIN',smite:'PARRY / BACK OFF',blink:'BEHIND YOU',heavenfall:'RUN',chorus:'WEAVE THROUGH',cataclysm:'FIND THE GAP',sunder:'BACK OFF'});
