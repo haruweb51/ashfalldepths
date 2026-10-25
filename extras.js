@@ -46,7 +46,7 @@ function giveArmor(lo,hi,msg){const pool=ARMS.filter(a=>a.set>=lo&&a.set<=hi&&!a
 const _oc=openChest;openChest=function(c){const had=opened[c.k];_oc(c);if(had)return;const T_=[[.18,0,1],[.32,0,2],[.5,1,4],[.5,1,4],[1,5,6]][c.type]||[.2,0,1];
  if(Math.random()<T_[0]){const n=giveArmor(T_[1],T_[2]);const t=document.getElementById('toast');t.textContent+=' \u00b7 '+n}};
 const _fb=finishBoss;finishBoss=function(B){_fb(B);const i=ARENAS.findIndex(a=>a.id===B.id);const n=giveArmor(Math.min(6,i+3),Math.min(6,i+3));const t=document.getElementById('toast');t.textContent+=' \u00b7 '+n+' (armor)'};
-const armTxt=a=>{const s=ASET[a.set],o=['Def '+Math.round(a.def*1000)/10+'%'];if(a.wt)o.push('Weight -'+Math.round(a.wt*3)+' speed');for(const k in s.fx){const v=s.fx[k]*ASM[a.slot]/4;o.push(FXN[k]+' +'+(PCT[k]?Math.round(v*100)+'%':Math.round(v)))}return o.join(' \u00b7 ')};
+let armTxt=a=>{const s=ASET[a.set],o=['Def '+Math.round(a.def*1000)/10+'%'];if(a.wt)o.push('Weight -'+Math.round(a.wt*3)+' speed');for(const k in s.fx){const v=s.fx[k]*ASM[a.slot]/4;o.push(FXN[k]+' +'+(PCT[k]?Math.round(v*100)+'%':Math.round(v)))}return o.join(' \u00b7 ')};
 const armRow=(a,b)=>`<div class="row"><span style="display:flex;gap:10px;align-items:center"><i class="sw" style="background:linear-gradient(135deg,${ASET[a.set].c[1]},${ASET[a.set].c[0]})"></i><span><b style="color:${RAR[a.rar][1]}">${a.name}</b><br><small>${armTxt(a)}</small></span></span><span>${b}</span></div>`;
 function armHTML(shop){const bs=armSet();let h=`<hr><b>ARMOR</b> <small>(separate from accessories) \u00b7 Defense ${Math.round(armDef()*100)}%</small>`;
  if(bs>=0)h+=`<div style="color:#9fe;font-size:12px">\u2726 Full ${ASET[bs].n} set: ${fxText(ASET[bs].bn)}</div>`;
@@ -201,7 +201,7 @@ function bossOver(B,k,p,ac,st){if(st==='dormant')return;const zc=B.def.zc||'255,
  if(bi===2&&Math.random()<(p2?.18:.08)){cx.strokeStyle='#fff';cx.lineWidth=1.2;cx.beginPath();let x=(Math.random()-.5)*w,y=-4;cx.moveTo(x,y);for(let i=0;i<5;i++){x+=(Math.random()-.5)*14;y+=h*.22;cx.lineTo(x,y)}cx.stroke()}
  if(p2){AD(()=>{cx.strokeStyle='rgba('+zc+','+(.4+.3*Math.sin(t*9))+')';cx.lineWidth=1.5;cx.strokeRect(-w/2-2,-2,w+4,h+4)})}
  AD(()=>{cx.save();cx.translate(0,h);cx.scale(1,.2);glow(0,0,w*1.1,'rgba('+zc+',.35)');cx.restore()})}
-for(const k of Object.keys(BS)){const o=BS[k];BS[k]=function(B,p,ac,st){o(B,p,ac,st);bossOver(B,k,p,ac,st)}}
+for(const k of Object.keys(BS)){const o=BS[k];BS[k]=function(B,p,ac,st){o(B,p,ac,st);if(k!=='tempest')bossOver(B,k,p,ac,st)}}
 
 // ---------- boss attack sound fx (synthesized, layer-themed) ----------
 const AC_=()=>{if(Audio_.mute)return null;try{Audio_.ac=Audio_.ac||new AudioContext();if(Audio_.ac.state==='suspended')Audio_.ac.resume();return Audio_.ac}catch(e){return null}};
