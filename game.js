@@ -576,10 +576,10 @@ function updE2(e,dt){if(e.dead)return;const d=e.def;if(e.st==='windup'&&e.pst!==
  if(fly)fm(e,e.vx,e.vy,dt);else move(e,dt)}
 // ---------- bosses ----------
 const BD={
-ember:{n:'The Ember Tyrant',tier:1,hp:25000,pmax:500,w:38,h:56,spd:70,dmg:45,pd:28,reach:84,jv:430,zc:'255,138,26',wpn:'infernal',col:['#4a1a14','#8a2a1a'],amb:3.2,aw:26,a1:['slam','sweep','pillars','nova'],a2:['slam','sweep','pillars','dash','nova','wall','spiral']},
- glacial:{n:'The Glacial Devourer',tier:2,hp:30000,pmax:700,w:60,h:38,spd:55,dmg:60,pd:34,reach:76,jv:540,zc:'140,215,255',wpn:'frostbite',col:['#6aa0d0','#bfe4ff'],sn:3,ps:165,amb:2.8,aw:60,a1:['slam','shoot','icicles','sweep','nova'],a2:['slam','shoot','icicles','sweep','icicles','wall','spiral','nova']},
- tempest:{n:'The Tempest Dragon',tier:3,hp:45000,pmax:900,w:84,h:36,fly:1,spd:90,dmg:90,pd:28,reach:60,zc:'255,255,120',wpn:'stormpiercer',col:['#3a4a98','#5a6ac0'],sn:3,ps:180,amb:2.5,aw:18,a1:['dash','shoot','bolts','nova'],a2:['dash','shoot','bolts','chain','nova','spiral','wall']},
- hollow:{n:'The Hollow King',tier:4,hp:85000,pmax:1500,w:22,h:44,spd:85,dmg:120,pd:32,reach:64,zc:'170,120,255',wpn:'voidfang',col:['#2a2438','#6a5a8a'],sn:2,ps:185,ctr:1,amb:4,aw:30,a1:['tele','sweep','shoot','wall'],a2:['tele','sweep','shoot','clones','nova','wall','spiral']}};
+ember:{n:'The Ember Tyrant',tier:1,hp:15000,pmax:500,w:38,h:56,spd:70,dmg:45,pd:28,reach:84,jv:430,zc:'255,138,26',wpn:'infernal',col:['#4a1a14','#8a2a1a'],amb:3.2,aw:26,a1:['slam','sweep','pillars','nova'],a2:['slam','sweep','pillars','dash','nova','wall','spiral']},
+ glacial:{n:'The Glacial Devourer',tier:2,hp:25000,pmax:700,w:60,h:38,spd:55,dmg:60,pd:34,reach:76,jv:540,zc:'140,215,255',wpn:'frostbite',col:['#6aa0d0','#bfe4ff'],sn:3,ps:165,amb:2.8,aw:60,a1:['slam','shoot','icicles','sweep','nova'],a2:['slam','shoot','icicles','sweep','icicles','wall','spiral','nova']},
+ tempest:{n:'The Tempest Dragon',tier:3,hp:55000,pmax:900,w:84,h:36,fly:1,spd:90,dmg:90,pd:28,reach:60,zc:'255,255,120',wpn:'stormpiercer',col:['#3a4a98','#5a6ac0'],sn:3,ps:180,amb:2.5,aw:18,a1:['dash','shoot','bolts','nova'],a2:['dash','shoot','bolts','chain','nova','spiral','wall']},
+ hollow:{n:'The Hollow King',tier:4,hp:85000,pmax:1500,w:22,h:44,spd:85,dmg:90,pd:32,reach:64,zc:'170,120,255',wpn:'voidfang',col:['#2a2438','#6a5a8a'],sn:2,ps:185,ctr:1,amb:4,aw:30,a1:['tele','sweep','shoot','wall'],a2:['tele','sweep','shoot','clones','nova','wall','spiral']}};
 const bcx=B=>B.x+B.w/2,bcy=B=>B.y+B.h/2;
 for(const k in BD){BD[k].dmg=Math.round(BD[k].dmg*1.12)}
 const bdm=B=>B.def.dmg*(B.er||1);
