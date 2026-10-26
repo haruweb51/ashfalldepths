@@ -108,7 +108,7 @@ wfx=function(e,d){enchFx(e,d);const k=P.weapon.kind;if(!PASS[k])return;const cxm
 const _es=enchSheet;enchSheet=function(w){const s=_es(w);return w&&w.unique&&PASS[w.kind]?'<br><small style="color:#ffb347">\u2726 '+PASS[w.kind][0]+': '+PASS[w.kind][1]+'</small>'+s:s};
 
 // ---------- 12. Elixir upgrades · spells · echo upgrades · crit & passives · unique boss armor ----------
-const ELXT=[[45,6],[67,6],[120,7],[160,8]];let ELXL=0;const elxCost=()=>Math.round(500*(ELXL+1)*(window.PRICEM||1));
+const ELXT=[[45,6],[67,6],[120,7],[160,15]];let ELXL=0;const elxCost=()=>Math.round(1000*(ELXL+1)*(window.PRICEM||1));
 function applyElx(){ELX_HEAL=ELXT[ELXL][0];ELX_MAX=ELXT[ELXL][1]}
 const _er0=elixRow;elixRow=function(){let h=_er0();const nx=ELXT[ELXL+1],cu=ELXT[ELXL];
  return h+(nx?`<div class="row"><span><b style="color:#7fff9a">Elixir Upgrade</b> <small>Lv ${ELXL}/3</small><br><small>${cu[0]} heal \u00b7 ${cu[1]} carry \u2192 ${nx[0]} heal \u00b7 ${nx[1]} carry</small></span><span><small style="color:#ffd36b">${elxCost()}g</small> <button data-eu="1" ${gold<elxCost()?'disabled':''}>Upgrade</button></span></div>`
