@@ -167,7 +167,7 @@ function pokeEnter(){if(PK)return;markDone();enemies=enemies.filter(e=>!e.tdummy
  pokeShout('Heh\u2026 so you are the new choom?')}
 function pokeStart(){if(!PK)return;PK.act=1;PK.cd=1.6;if(PK.st==='wait')PK.st='idle';
  P.hp=maxHp();P.stam=maxStam();P.post=0;P.el=Math.max(P.el|0,3);P.ecd=0;P.inv=Math.max(P.inv,1);tone(110,55,.8,'sawtooth',.12);pokeShout('Show me what you can do!')}
-function nextAtk(){const s=PK.seq;if(!s.length){const a=['gate','rapid','aerial'];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}PK.seq=a}return PK.seq.shift()}
+function nextAtk(){const s=PK.seq;if(!s.length){const a=['gate','rapid','aerial','almighty'];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}PK.seq=a}return PK.seq.shift()}
 function swd(x,y,a,sp,k,l){PSW.push({x,y,a,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,k,l:l||2.6})}
 function pokeAtk(){const e=PK,a=nextAtk();e.t=0;e.k=0;e.vx=0;const pc=P.x+6,pcy=P.y+11;
  if(a==='gate'){e.st='gate';pokeShout('GATES OF BABYLON!');PPT=[];const n=7,o=Math.random()*5|0;
@@ -175,16 +175,33 @@ function pokeAtk(){const e=PK,a=nextAtk();e.t=0;e.k=0;e.vx=0;const pc=P.x+6,pcy=
   tone(300,900,.5,'sine',.08);tone(450,1350,.5,'triangle',.05,.05)}
  else if(a==='rapid'){e.st='rapid';pokeShout('RAPID FIRE!');tone(220,660,.4,'sawtooth',.06)}
  else if(a==='aerial'){e.st='jump';e.ph=0;e.vy=-560;pokeShout('AERIAL BOMBARDMENT!');tone(150,420,.3,'sawtooth',.08);burst(e.x+12,e.y+e.h,12,'#ff9a3a')}
+ else if(a==='almighty')pokeAlmighty();
  else pokeEnuma()}
+// THE ALMIGHTY: 4s of invulnerability while Poke is turned black and covered in yellow eyes
+const ALM_T=4;
+function pokeAlmighty(){const e=PK;e.st='almighty';e.t=0;e.vx=0;e.alm=1;e.eyes=[];
+ for(let i=0;i<24;i++)e.eyes.push({k:0,ox:(Math.random()-.5)*34,oy:-4-Math.random()*48,r:2.5+Math.random()*4.5,rot:(Math.random()-.5)*2.4,ph:Math.random()*Math.PI*2,sp:1.2+Math.random()*1.6,d:.05+Math.random()*.5});
+ for(let i=0;i<14;i++)e.eyes.push({k:1,ang:Math.random()*6.283,rad:30+Math.random()*34,r:5+Math.random()*7,rot:(Math.random()-.5)*2.4,ph:Math.random()*Math.PI*2,sp:1+Math.random()*1.4,d:.1+Math.random()*.6,w:(Math.random()<.5?-1:1)*(.4+Math.random()*.5)});
+ pokeShout('THE ALMIGHTY!');burst(e.x+12,e.y+26,26,'#ffe45a');shake=Math.max(shake,4);tone(130,70,1.1,'sawtooth',.12);tone(520,1040,.8,'sine',.06,.1);noise(.8,.08,2500,200,'bandpass',2)}
+function pokeEyes(e,X,Y,bob){const t=e.t,fi=clamp(t/.6,0,1),fo=clamp((ALM_T-t)/.5,0,1),a=Math.min(fi,fo);if(a<=0)return;
+ cx.save();cx.translate(X,Y+bob);
+ for(const q of e.eyes){const g=clamp((t-q.d)/.35,0,1)*fo;if(g<=0)continue;
+  let x,y;if(q.k){const an=q.ang+time*q.w;x=Math.cos(an)*q.rad;y=-28+Math.sin(an)*q.rad*.8}else{x=q.ox;y=q.oy}
+  const bl=Math.max(.08,Math.min(1,.5+Math.sin(time*q.sp*2+q.ph)*1.6)),rx=q.r*(.7+.3*g)*1.5,ry=q.r*.7*bl*g;if(ry<.4)continue;
+  cx.save();cx.translate(x,y);cx.rotate(q.rot+(q.k?Math.sin(time+q.ph)*.4:0));cx.globalAlpha=g;
+  cx.fillStyle='#f6e66a';cx.strokeStyle='#000';cx.lineWidth=1;cx.beginPath();cx.ellipse(0,0,rx,ry,0,0,7);cx.fill();cx.stroke();
+  cx.fillStyle='#000';cx.beginPath();cx.ellipse(0,0,rx*.28,Math.max(.4,ry*.8),0,0,7);cx.fill();cx.restore()}
+ cx.restore()}
 function pokeEnuma(){const e=PK;e.st='ascend';e.t=0;e.vx=0;e.vy=0;pokeShout('ENUMA ELISH!');tone(80,220,1.2,'sawtooth',.12);noise(1,.1,600,100,'lowpass')}
 // Poke cannot be killed by damage: at 0 he is held at 1 HP and unleashes Enuma Elish. Parry it to win.
 function pokeFinale(){const e=PK;if(!e||e.res||e.fin)return;e.fin=1;e.hp=1;e.stunned=0;PSW=[];PPT=[];PWV=[];zones=[];projs=[];
  burst(e.x+12,e.y+26,30,'#ff6a3a');shake=Math.max(shake,8);hitstop=Math.max(hitstop,.12);toast('Poke is at his limit\u2026 PARRY his final attack!');pokeEnuma()}
-function pokeDmg(n){const e=PK;if(!e||e.res||e.fin)return;e.hp-=n;e.flash=.12;if(e.hp<=1)pokeFinale()}
+function pokeDmg(n){const e=PK;if(!e||e.res||e.fin||e.alm)return;e.hp-=n;e.flash=.12;if(e.hp<=1)pokeFinale()}
 // 25% chance every 30s: Poke gets staggered
 function pokeAngry(){const e=PK;e.st='stun';e.t=3.5;e.vx=0;e.stunned=0;pokeShout("He's getting angry");toast("He's getting angry\u2026");float(e.x,e.y-14,'STAGGERED','#ffd36b');
  burst(e.x+12,e.y+20,18,'#ff8a3a');shake=Math.max(shake,5);tone(160,60,.6,'sawtooth',.12);noise(.4,.1,900,120,'lowpass')}
 function pokeHit(e){if(!e.act||e.res||e.fin||e.st==='enter'||e.st==='wait'){try{sfx.block()}catch(x){}float(e.x,e.y-6,'\u2026','#999');return}
+ if(e.alm){try{sfx.block()}catch(x){}burst(e.x+12,e.y+20,5,'#ffe45a');float(e.x+6,e.y-4,'INVULNERABLE','#ffe45a');return}
  let d=dmgOut()*(P.combo===2?1.3:1);if(e.st==='stun')d*=1.5;d=Math.round(d);
  hitstop=.04;shake=Math.max(shake,2);sfx.hit();burst(e.x+12,e.y+20,8,'#c33');float(e.x+6,e.y-4,d,'#fff');pokeDmg(d)}
 function pokeBeam(){const e=PK,c=pcen(),ang=Math.atan2(P.y+11-c.y,P.x+6-c.x);PBM={x:c.x,y:c.y,a:ang,t:.55};
@@ -242,6 +259,7 @@ function pokeUpd(dt){const e=PK;if(!e||!P)return;
   if(e.ph===0){e.vy+=1500*dt;e.y+=e.vy*dt;trackX(230);if(e.vy>=0){e.ph=1;e.t=0;e.vy=0}}
   else if(e.ph===1){e.t+=dt;trackX(260);if(e.t>=.45){e.ph=2;e.vy=1100;tone(500,100,.4,'sawtooth',.08)}}
   else{e.y+=e.vy*dt;if(e.y+e.h>=PG())pokeLand()}break}
+ case'almighty':{e.t+=dt;e.face=pc>=ec?1:-1;if(e.t>=ALM_T){e.alm=0;e.eyes=null;e.st='idle';e.cd=1.3;burst(ec,e.y+e.h*.5,16,'#ffe45a');tone(400,200,.3,'sine',.07)}break}
  case'rec':e.t-=dt;if(e.t<=0){e.st='idle';e.cd=1.3}break;
  case'ascend':{e.t+=dt;e.face=pc>=ec?1:-1;e.y+=((PG()-e.h-150)-e.y)*Math.min(1,dt*3.2);if(e.t>=1.1){e.st='charge';e.t=0}break}
  case'charge':{e.t+=dt;e.face=pc>=ec?1:-1;if(e.t>=PCH){e.st='warn';e.t=0;e.go=0;e.tk=-1;pokeShout('PARRY\u2026 OR PERISH!');tone(300,100,1,'sawtooth',.1)}break}
@@ -272,8 +290,9 @@ function drawPoke(e,ox,oy,L){if(e.res)return;const X=Math.round(e.x+e.w/2-ox),Y=
  const air=e.st==='charge'||e.st==='warn'||e.st==='ascend',bob=air?Math.sin(time*3)*2:0,cy=Y-28+bob;
  if(e.st==='enter'){orb(X,cy,50,'rgba(255,200,70,'+(.5*(1-al))+')');const r=22*(1-al*.5);cx.save();cx.strokeStyle='rgba(255,220,100,'+(1-al*.6)+')';cx.lineWidth=2;cx.beginPath();cx.ellipse(X,Y-26,r*.5,r*1.4,0,0,7);cx.stroke();cx.restore()}
  orb(X,cy,38,'rgba(190,20,40,'+(.2+.08*Math.sin(time*4))+')');
- if(IMG.k){cx.save();cx.globalAlpha=al;cx.translate(X,Y+bob);cx.scale(fl>0?1:-1,1);if(e.flash>0)cx.filter='brightness(3)';cx.drawImage(IMG.k,-19,-56,38,56);cx.restore()}
+ if(IMG.k){cx.save();cx.globalAlpha=al;cx.translate(X,Y+bob);cx.scale(fl>0?1:-1,1);if(e.alm)cx.filter='brightness(0)';else if(e.flash>0)cx.filter='brightness(3)';cx.drawImage(IMG.k,-19,-56,38,56);cx.restore()}
  else{FR(X-10,Y-48+bob,20,48,'#111')}
+ if(e.alm&&e.eyes){const q=clamp(e.t/.6,0,1)*clamp((ALM_T-e.t)/.5,0,1);orb(X,cy,46,'rgba(255,230,70,'+(.22*q+.08*Math.sin(time*6))+')');pokeEyes(e,X,Y,bob);L.push([X,cy,60*q])}
  if(e.st==='gate'||e.st==='rapid'||e.st==='jump'){const g=e.st==='jump'?'rgba(255,120,30,.55)':'rgba(255,210,90,.55)';orb(X+fl*14,Y-34+bob,16,g);orb(X-fl*14,Y-34+bob,12,g)}
  if(e.st==='jump'&&e.ph>=1)orb(X,Y-6,34,'rgba(255,100,20,.5)');
  if(e.st==='charge'||e.st==='warn'){const q=e.st==='warn'?1:clamp(e.t/PCH,0,1),r=8+q*26;
