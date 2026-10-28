@@ -70,12 +70,12 @@ E mine block / talk to the Merchant, the Questwarden or the Enchanting Altar at 
   <input id="auUser" type="text" placeholder="Username" maxlength="20" autocomplete="username" spellcheck="false">
   <input id="auPass" type="password" placeholder="Password" maxlength="64" autocomplete="current-password">
   <label id="auShowW"><input id="auShow" type="checkbox"> Show password</label>
-  <label id="auImpW" class="hidden"><input id="auImp" type="checkbox" checked> Import this device's current progress into the new account</label>
+  <label id="auImpW" class="hidden"><input id="auImp" type="checkbox"> <span id="auImpT"></span></label>
   <div id="auWarn">&#9888; <b>Don't forget your password!</b> There is <b>no password reset</b> &mdash; if you lose it, the account and all its progress are gone for good. Write it down somewhere safe.</div>
   <div id="auErr"></div>
   <button id="auGo">Log In</button>
   <button id="auSwap" class="alt">Create a new account</button>
 </div>
-<div id="acct" class="hidden"><span id="acName"></span> <span id="acSt"></span> <button id="acOut">Log out</button></div>
+<div id="acct" class="hidden"><span id="acName"></span> <span id="acSt"></span> <button id="acImp" class="hidden">Import device progress</button> <button id="acOut">Log out</button></div>
 <script src="auth.js"></script>
 </body></html>
