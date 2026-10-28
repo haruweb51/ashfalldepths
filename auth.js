@@ -33,10 +33,12 @@ function loadGame(){
   const files=['game.js','extras.js','patch.js','patch2.js','patch3.js','patch4.js','patch5.js'];
   let i=0;(function next(){if(i>=files.length)return;const s=document.createElement('script');s.src=files[i++];s.onload=next;s.onerror=()=>{$('auErr').textContent='Failed to load '+s.src;$('auth').classList.remove('hidden')};document.body.appendChild(s)})();
 }
-function enter(name,data){
-  const bak=snapshot();if(Object.keys(bak).length&&Object.keys(data||{}).length)try{_set.call(LS,'af_backup',JSON.stringify(bak))}catch(e){}
+function updImp(){let b=null;try{b=LS.getItem('af_backup')}catch(e){}$('acImp').classList.toggle('hidden',!b)}
+function enter(name,data,fresh){
+  if(fresh){const local=snapshot(),ls=JSON.stringify(local);
+    if(Object.keys(local).length&&ls!==JSON.stringify(data||{}))try{_set.call(LS,'af_backup',ls)}catch(e){}}
   applyData(data);syncing=true;dirty=false;
-  $('auth').classList.add('hidden');$('acName').textContent='👤 '+name;$('acct').classList.remove('hidden');status('✓ saved');
+  $('auth').classList.add('hidden');$('acName').textContent='👤 '+name;$('acct').classList.remove('hidden');status('✓ saved');updImp();
   loadGame();
 }
 function showAuth(m,msg){
@@ -45,7 +47,8 @@ function showAuth(m,msg){
   $('auGo').textContent=reg?'Create Account':'Log In';
   $('auSwap').textContent=reg?'I already have an account':'Create a new account';
   $('auPass').autocomplete=reg?'new-password':'current-password';
-  $('auImpW').classList.toggle('hidden',!(reg&&gameKeys().length));
+  $('auImpW').classList.toggle('hidden',!gameKeys().length);$('auImp').checked=reg;
+  $('auImpT').textContent=reg?"Import this device's current progress into the new account":"Import this device's progress into this account (replaces the account's saved progress)";
   $('auErr').textContent=msg||'';$('auth').classList.remove('hidden');
 }
 async function submit(){
@@ -54,11 +57,18 @@ async function submit(){
   $('auGo').disabled=true;$('auErr').textContent='';
   try{
     const reg=mode==='register';
+    const local=snapshot(),hasLocal=Object.keys(local).length>0,imp=$('auImp').checked&&hasLocal;
     const body={username:u,password:p};
-    if(reg){if(p.length<6)throw new Error('Password must be at least 6 characters');if($('auImp').checked&&gameKeys().length)body.data=snapshot()}
+    if(reg){if(p.length<6)throw new Error('Password must be at least 6 characters');if(imp)body.data=local}
     const r=await api('POST',reg?'/api/register':'/api/login',body);
+    let data=r.data;
+    if(!reg&&imp){
+      if(!Object.keys(data||{}).length||confirm('Replace the progress saved on account "'+r.username+'" with the progress from this device? This cannot be undone.'))data=local;
+      else $('auImp').checked=false;
+    }
     token=r.token;_set.call(LS,TK,token);_set.call(LS,UK,r.username);$('auPass').value='';$('auShow').checked=false;$('auPass').type='password';
-    enter(r.username,r.data);
+    enter(r.username,data,true);
+    if(!reg&&data===local){try{_rem.call(LS,'af_backup')}catch(e){}updImp();dirty=true;push()}
   }catch(e){$('auErr').textContent=e.status?e.message:'Cannot reach the server — is it running?'}
   $('auGo').disabled=false;
 }
@@ -73,6 +83,14 @@ $('auSwap').onclick=()=>showAuth(mode==='login'?'register':'login');
 $('auPass').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')submit()});
 $('auUser').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')$('auPass').focus()});
 ['keyup','keypress'].forEach(t=>{$('auUser').addEventListener(t,e=>e.stopPropagation());$('auPass').addEventListener(t,e=>e.stopPropagation())});
+$('acImp').onclick=async()=>{
+  let b=null;try{b=JSON.parse(LS.getItem('af_backup'))}catch(e){}
+  if(!b)return updImp();
+  if(!confirm('Replace the progress saved on this account with the progress this device had before you logged in? This cannot be undone.'))return;
+  applyData(b);dirty=true;inflight=false;await push();
+  if(dirty)return alert('Could not save to the server. Try again when you are online.');
+  _rem.call(LS,'af_backup');location.reload();
+};
 $('acOut').onclick=()=>{if(confirm('Log out? Your progress is saved to your account.'))logout()};
 
 (async()=>{
