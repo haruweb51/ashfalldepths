@@ -55,6 +55,53 @@
  const upgradeOld=w=>{if(w&&w.kind==='frostbite'&&w.unique){w.kind='icescythe';w.name=WN.icescythe;w.dmg=Math.max(w.dmg|0,WK.icescythe.bd)}};
  const _ugi=setInterval(()=>{try{if(typeof inv!=='undefined'){inv.forEach(upgradeOld);if(P&&P.weapon)upgradeOld(P.weapon)}}catch(e){}},1500);
 
+ // ---- Gale Odachi (Elder Maren's reward): long black-and-crimson serrated blade, 5-stage M1 combo passive ----
+ WK.odachi={reach:56,dur:.62,pd:1.6,dm:1.45,col:['#ff2a4a44','#ff5a78aa','#ffffff'],names:[],
+  draw(){
+   const fl=(P&&P.face<0)?-1:1,st=(P&&P.gS&&time-(P.gT||-9)<1.8)?P.gS:0;cx.save();cx.scale(1,fl);
+   // ito-wrapped grip: black cord with crimson diamonds
+   FR(-12,-1.8,25,3.6,'#150c10');for(let x=-10;x<12;x+=4){FR(x,-1.8,2,3.6,'#7a1420');FR(x+2,-1.8,1,3.6,'#2a1018')}
+   FR(-14,-2.4,3,4.8,'#3a3038');FR(-14,-1,1.5,2,'#c0283c');
+   // tsuba (guard): dark plate with crimson rim
+   PL([12.5,-5.6,15.5,-5.6,17,-3,17,3,15.5,5.6,12.5,5.6,11,3,11,-3],'#26222c');PL([13.4,-4.2,15,-4.2,15.6,0,15,4.2,13.4,4.2,12.4,0],'#7a1420');FR(13.6,-.8,1.4,1.6,'#d8c070');
+   // blade: long, curved, serrated on the spine
+   const N=18,top=[],bot=[],cl=t=>[17+58*t,-13*t*t],wd=t=>5.4*(1-.82*Math.pow(t,1.4));
+   for(let i=0;i<=N;i++){const t=i/N,[x,y]=cl(t),w=wd(t);top.push(x,y-w*.55);bot.unshift(x,y+w*.45)}
+   PL(top.concat(bot),'#17121a');
+   // crimson-lit cutting edge + highlight
+   const edge=[],hl=[];for(let i=0;i<=N;i++){const t=i/N,[x,y]=cl(t),w=wd(t);edge.push(x,y+w*.45);hl.push(x,y+w*.05)}
+   cx.lineJoin='round';cx.strokeStyle='#8a1a2c';cx.lineWidth=1.1;cx.beginPath();for(let i=0;i<edge.length;i+=2)i?cx.lineTo(edge[i],edge[i+1]):cx.moveTo(edge[i],edge[i+1]);cx.stroke();
+   cx.strokeStyle='rgba(255,120,140,.55)';cx.lineWidth=.6;cx.beginPath();for(let i=0;i<hl.length;i+=2)i?cx.lineTo(hl[i],hl[i+1]):cx.moveTo(hl[i],hl[i+1]);cx.stroke();
+   // saw-teeth along the spine
+   for(let t=.1;t<.93;t+=.052){const[x,y]=cl(t),w=wd(t);PL([x,y-w*.5,x+2.6,y-w*.55-3.4+t*2,x+3.6,y-w*.5+.3],'#0d0a10')}
+   // little hook-spike beside the guard
+   PL([17,-3.2,19.5,-8,23,-11.5,21.8,-6.4,19.5,-2.6],'#2e2834');PL([19.5,-8,23,-11.5,21,-7.5],'#8a1a2c');
+   // gale glow grows with the combo stage
+   if(typeof AD==='function')AD(()=>{const gs=st/5;glow(48,-4,18+st*7,'rgba(255,40,70,'+(.12+.1*st)+')');if(st>=3)glow(60,-7,16,'rgba(190,240,255,'+(.15*gs)+')')});
+   if(st>=2&&Math.random()<.2*st)parts.push({x:P.x+6+fl*0,y:P.y+8,vx:(Math.random()-.5)*60,vy:-20,l:.35,c:st>=4?'#dff':'#ff7a90'});
+   cx.restore()}};
+ // each M1 swing gets an id so the combo advances once per swing (not once per enemy hit)
+ const _ta7=tryAttack;tryAttack=function(){const a=P?P.atk:0;_ta7.apply(this,arguments);if(P&&P.atk>a)P.swId=(P.swId|0)+1};
+ window.giveGaleOdachi=function(o){
+  const lvl=Math.max(1,P.lvl+3),w={id:uid++,type:'weapon',kind:'odachi',name:'Gale Odachi',rar:4,dmg:Math.round((8+lvl*1.5)*1.8*WK.odachi.dm),speed:1};
+  if(inv.length<20){inv.push(w);o.push(w.name);return}
+  let idx=inv.findIndex(i=>i&&i.type==='weapon'&&i.rar===0);       // bag full: it takes the place of a Common weapon
+  if(idx<0){let br=9;inv.forEach((i,j)=>{if(i&&i.type==='weapon'&&i.rar<br){br=i.rar;idx=j}})}
+  if(idx>=0){const old=inv[idx];inv[idx]=w;o.push(w.name+' (replaced '+old.name+')')}else{gold+=500;o.push('+500g (pack full)')}};
+
+ // ---- Scholar echo upgrade: more levels ----
+ {const u=UPG.find(q=>q[0]==='xp');if(u)u[3]=15}
+
+ // ---- Boss kills: +3 levels (first kill) / +1 level (rekindled); rekindled bosses still drop a Boss Treasure Cache ----
+ const giveLevels=n=>{for(let i=0;i<n;i++){P.xp=Math.max(P.xp,xpNeed(P.lvl));gainXp(0)}};
+ let noXp=0;const _gx7=gainXp;gainXp=function(){if(noXp)return;return _gx7.apply(this,arguments)};   // a boss kill grants exactly its levels, not random xp on top
+ const _fb7=finishBoss;finishBoss=function(B){
+  const was=B&&B.dead;noXp=1;try{_fb7.apply(this,arguments)}finally{noXp=0}
+  if(!B||was||!B.dead||!P)return;
+  const n=B.rs?1:3;giveLevels(n);
+  if(B.rs&&B.ar){const k='cache'+B.id;delete opened[k];chests=chests.filter(c=>c.k!==k);addCache(B.ar)}
+  setTimeout(()=>{if(P)toast('✦ Boss slain · +'+n+(n>1?' levels':' level')+(B.rs?' · treasure cache appeared':''))},2600)};
+
  // ---- Passives ----
  const lsPct=w=>.01+.0075*((w&&w.rar)|0);                      // Common 1% ... Legendary 4% of max HP per hit
  const PASS={
@@ -66,6 +113,7 @@
   scimitar:['Twin Strike','20% chance to strike again for 50% damage'],
   katana:['Precision','15% chance to crit (x2 damage)'],
   axe:['Sunder','+30% damage to enemies below 50% HP'],
+  odachi:['Gale Rhythm','5-stage M1 combo (resets after 1.8s idle): I +10% dmg \u00b7 II +20% & 3 stamina \u00b7 III +30% & cleave \u00b7 IV +45% & posture break \u00b7 V Storm\u2019s End: +100% & shockwave'],
   icescythe:['Shatter','Strikes chill and slow. Chilled foes take +25% damage; the 3rd chill SHATTERS them: 150% burst damage, 70% to nearby foes, bosses lose heavy posture.'],
   scythe:['Soul Harvest',w=>'Lifesteal: heal '+(Math.round(lsPct(w)*1000)/10)+'% of max HP per hit']};
  const passTxt=w=>{const p=w&&PASS[w.kind];if(!p)return'';return p[0]+': '+(typeof p[1]==='function'?p[1](w):p[1])};
@@ -81,6 +129,14 @@
   else if(k==='scimitar'){if(Math.random()<.2){extra(e,d*.5);float(e.x,e.y-24,'TWIN','#fd8');burst(mx,my,6,'#fd8')}}
   else if(k==='katana'){if(Math.random()<.15){extra(e,d);float(e.x,e.y-24,'CRIT x2','#ffb347');burst(mx,my,8,'#fff')}}
   else if(k==='axe'){if(e.hp>0&&e.hp<e.max*.5){extra(e,d*.3);float(e.x,e.y-24,'SUNDER','#f88')}}
+  else if(k==='odachi'){
+   if(P.gSw!==P.swId){P.gSw=P.swId;P.gS=(P.gS&&time-(P.gT||-9)<1.8)?(P.gS%5)+1:1}
+   P.gT=time;const s=P.gS,RN=['','I','II','III','IV','V'],B=[0,.1,.2,.3,.45,1.0][s];
+   extra(e,d*B);float(e.x,e.y-24-s*2,s===5?'STORM’S END':'GALE '+RN[s],s===5?'#fff':'#ff7a90');burst(mx,my,3+s*2,s>=4?'#dff':'#ff5a78');
+   if(s===2)P.stam=Math.min(maxStam(),P.stam+3);
+   if(s===3||s===5){const r=s===5?100:60,f=s===5?.8:.4;for(const o of enemies){if(o===e||o.dead||o.boss||o.tdummy||o.tpoke)continue;if(Math.hypot(o.x-e.x,o.y-e.y)<r){o.hp=Math.max(1,o.hp-d*f);o.post=(o.post||0)+(s===5?25:0);burst(o.x+7,o.y+8,6,'#dff')}}}
+   if(s>=4&&!e.tpoke&&!e.tdummy){e.post=(e.post||0)+(s===5?30:12)}
+   if(s===5){shake=Math.max(shake,6);hitstop=Math.max(hitstop||0,.08);for(let i=0;i<14;i++){const a=i/14*6.283;parts.push({x:mx,y:my,vx:Math.cos(a)*200,vy:Math.sin(a)*60-10,l:.4,c:i%2?'#fff':'#ff5a78'})}tone(900,200,.25,'sawtooth',.08)}}
   else if(k==='icescythe'){e.slow=2;e.chill=(e.chill||0)+1;burst(mx,my,6,'#8ef');
    if(e.chill>1)extra(e,d*.25);
    if(e.chill>=3){e.chill=0;extra(e,d*1.5);if(e.boss)e.post=(e.post||0)+55;else if(!e.tpoke&&!e.tdummy){e.st='stagger';e.t=.8;e.vx=0}
