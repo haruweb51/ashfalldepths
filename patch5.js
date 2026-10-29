@@ -1,6 +1,6 @@
 'use strict';
 // ===== Ashfall Depths: Patch 5 (load AFTER patch4.js) =====
-// The Nameless Deity has a 45% chance to be CORRUPTED when it dies -> the AVATAR OF EMPTINESS tears itself out of it.
+// The Nameless Deity has a 75% chance to be CORRUPTED when it dies -> the AVATAR OF EMPTINESS tears itself out of it.
 // 200,000 HP · same damage/stats · 4 phases (stagger at phase IV) · dimensional-slash attacks · crimson/black/bone/cyan palette
 // own boss theme  bossthemes/emptytheme.(mp3|ogg|wav|m4a|opus|flac|aac) · own victory cutscene · secret badge · "Emptiness Filled" blessing (+20%)
 // UPGRADE: attacks rebuilt (more lines, chained teleports, bleeding rifts, multi-wave) - scale with AV_POWER (1 = full, 0.5 = half)
@@ -8,7 +8,7 @@
 // Test it quickly: open the browser console and type   AVATAR_CHANCE=1   (then beat the Deity)   ·   AVATAR_CHANCE=0 disables it
 (()=>{
 const TAU=Math.PI*2,c01=v=>Math.max(0,Math.min(1,v)),ease=k=>k*k*(3-2*k);
-window.AVATAR_CHANCE=.45;window.AV_WIN=0;
+window.AVATAR_CHANCE=.75;window.AV_WIN=0;
 const RD='rgb(255,40,70)',CY='rgb(80,230,255)',INKP='rgb(25,5,15)';
 const dmA=B=>B.def.dmg*(B.er||1);
 // AV_POWER scales how MANY slashes / projectiles the Avatar's attacks use (1 = full strength, 0.5 = half). Type AV_POWER=0.6 in the console to tone it down.
@@ -298,7 +298,7 @@ const _hbA=hitBoss;hitBoss=function(B){
  if(B.ph===2&&ph0===1){d.a2=d.a1.concat(['avRadial','avSever','avSpiral']);toast('PHASE III \u2014 Reality frays');B.shT=SHT.every;guideSay('Phase III! Every '+SHT.every+' seconds he will wind up to SHATTER REALITY for '+SHT.dmg+' damage. Watch the bar \u2014 dodge (Shift) or parry (RMB) on the cyan zone!',7)}
  if(B.fury&&!fu0){d.a2.push('avAnnihilate','avCollapse');toast('PHASE IV \u2014 Annihilation')}};
 
-// the Deity's death: 45% chance to be corrupted instead of finishing
+// the Deity's death: 75% chance to be corrupted instead of finishing
 const _fbA=finishBoss;finishBoss=function(B){
  if(!B||B.id!=='deity'||B.dead){_fbA(B);return}
  if(!B.av){if(Math.random()<window.AVATAR_CHANCE){beginCorrupt(B);return}_fbA(B);return}
