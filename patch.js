@@ -119,7 +119,7 @@ Object.assign(U0,{crit:0,critd:0,fleet:0,resolve:0,breath:0,spellc:0,swind:0,vam
 // Vampirism was replaced by Soul Harvest: refund anything already spent on it
 {const v=meta.up.vamp|0;if(v>0){let r=0;for(let i=0;i<v;i++)r+=Math.round(260*(1+i*.8));meta.echoes+=r;saveMeta()}delete meta.up.vamp;delete U0.vamp}
 for(const k in U0)if(meta.up[k]==null)meta.up[k]=0;
-UPG.push(['crit','Keen Eye','+2% critical chance',10,40],['critd','Ruthlessness','+12% critical damage',8,45],['fleet','Fleetfoot','+4% move speed',6,35],['resolve','Resolve','+2.5% damage reduction',6,55],
+UPG.push(['crit','Keen Eye','+2% critical chance (adds to Precision)',10,40],['critd','Ruthlessness','+12% critical damage (also boosts Precision)',8,45],['fleet','Fleetfoot','+4% move speed',6,35],['resolve','Resolve','+2.5% damage reduction',6,55],
  ['breath','Second Breath','+6% stamina regeneration',6,40],['spellc','Spellcraft','-6% spell stamina cost',5,60],
  ['swind','\u2726 Second Wind','Passive: survive one killing blow per run (revive with 40% / 55% / 70% HP)',3,300,1],['harvest','\u2726 Soul Harvest','Passive: each enemy you slay restores 4% / 6% / 8% max HP and 15 / 25 / 35 stamina',3,260,1],
  ['riposte','\u2726 Riposte','Passive: after a parry your next strike deals +50% / +75% / +100% damage',3,280,1],['exec','\u2726 Executioner','Passive: +25% damage per level to enemies below 25% HP',3,320,1],
@@ -169,12 +169,13 @@ function stormArc(){const px=P.x+6,py=P.y+11;for(const e of enemies){if(e.dead||
  for(let i=0;i<20;i++){const a=i/20*6.283;parts.push({x:px,y:py,vx:Math.cos(a)*220,vy:Math.sin(a)*220,l:.25,c:i%2?'#ff6':'#fff'})}noise(.2,.18,6000,800,'highpass')}
 let inH=0;
 const hitW=f=>function(e){if(inH||!P||!P.weapon)return f(e);inH=1;const w=P.weapon,d0=w.dmg,U=meta.up,sb=P.sb||{};let m=1;
- const cc=(U.crit|0)*.02;if(e.st!=='broken'&&cc>0&&Math.random()<cc){m*=1.6+(U.critd|0)*.12;float(e.x,e.y-26,'CRIT!','#ff5')}
+ const ck=(w.ench||[]).filter(b=>b.k==='crit');const cc=Math.min(1,(U.crit|0)*.02+ck.reduce((a,b)=>a+b.v,0));   // Keen Eye (echo) + Precision (enchant) are ONE crit chance; Ruthlessness boosts every crit
+ if(e.st!=='broken'&&cc>0&&Math.random()<cc){m*=2+(U.critd|0)*.12;float(e.x,e.y-26,'CRIT \u00d7'+(2+(U.critd|0)*.12).toFixed(2).replace(/0$/,''),'#ffb347');burst(e.x+(e.w||14)/2,e.y+(e.h||22)/2,10,'#ffd36b')}
  if(P.rip>0){m*=1+.25*(1+(U.riposte|0));P.rip=0;float(e.x,e.y-34,'RIPOSTE','#fc6')}
  if(!e.boss&&(U.exec|0)&&e.hp<e.max*.25)m*=1+.25*U.exec;
  if(P.adr>0&&(U.adren|0))m*=1+.1*(1+U.adren);
  if(sb.zerk>0)m*=1.4;if(e.frail>0)m*=1.3;
- const wd0=e.dead;w.dmg=d0*m;try{f(e)}finally{w.dmg=d0;inH=0}if(e.dead&&!wd0&&!e.boss)harvest()};
+ const wd0=e.dead;w.dmg=d0*m;ck.forEach(b=>b.k='crit_');try{f(e)}finally{ck.forEach(b=>b.k='crit');w.dmg=d0;inH=0}if(e.dead&&!wd0&&!e.boss)harvest()};
 hitEnemy=hitW(hitEnemy);hitBoss=hitW(hitBoss);
 const _wf3=wfx;wfx=function(e,d){_wf3(e,d);if(!P)return;const U=meta.up;
  if(armEq.hands==='uq_glacial_hands'){e.slow=Math.max(e.slow||0,1.5);if(e.boss)e.post+=12;else if(Math.random()<.12){e.st='stagger';e.t=1;burst(e.x+e.w/2,e.y+e.h/2,12,'#bff');float(e.x,e.y-26,'FROZEN','#9ef')}}};
