@@ -95,9 +95,9 @@ const VILS=[
    give(o){gold+=300;o.push('+300g');acc(3,4,o,200)}},
   say:{offer:'I heard chests are FULL of treasure! Smash open six and I\u2019ll split the shiny stuff with you. Promise!',act:'Six chests! Look for the ones glowing in the dark!',rdy:'You really did it! Here, I saved the best shiny for you!',done:'When I grow up I\u2019m going to be just like you!'}},
  {id:'maren',name:'Elder Maren',title:'Village Elder',home:392,rng:10,spd:7,kind:'elder',gate:4,pal:{skin:'#d9b090',hair:'#f0f0f0',c1:'#4a5a8a',c2:'#2e3a64',c3:'#d9a441',boots:'#3a2a1a'},
-  q:{t:'The Weight of the Crown',ev:'boss',n:1,d:'Defeat a layer boss.',rw:'A Legendary weapon \u00b7 2 talent hands \u00b7 150 echoes',
-   give(o){if(inv.length<20){const w=rollWeapon(Math.max(1,P.lvl+3),4);inv.push(w);o.push(w.name)}else{gold+=500;o.push('+500g (pack full)')}P.thands=(P.thands|0)+2;o.push('+2 talent hands');meta.echoes+=150;saveMeta();o.push('+150 echoes')}},
-  say:{offer:'The Hollow King\u2019s shadow grows long over Ashfall. Defeat one of the guardians below and this village will call you its champion.',act:'One guardian, wanderer. Prove the Depths can be answered.',rdy:'The guardian has fallen! Ashfall has a champion again. Take this \u2014 it was my father\u2019s.',done:'Ashfall endures because of you.',lock:'Earn the village\u2019s trust first. Help four of my people, then return to me.'}}
+  q:{t:'The Weight of the Crown',ev:'boss',boss:'tempest',n:1,d:'Defeat the Tempest Dragon.',rw:'The Legendary Gale Odachi \u00b7 2 talent hands \u00b7 150 echoes',
+   give(o){if(window.giveGaleOdachi)window.giveGaleOdachi(o);else{gold+=500;o.push('+500g')}P.thands=(P.thands|0)+2;o.push('+2 talent hands');meta.echoes+=150;saveMeta();o.push('+150 echoes')}},
+  say:{offer:'The Hollow King\u2019s shadow grows long over Ashfall. The Tempest Dragon rules the storm-wracked deep \u2014 slay it, and this village will call you its champion.',act:'The Tempest Dragon, wanderer. Prove the Depths can be answered.',rdy:'The storm is silenced! Take this \u2014 it was my father\u2019s. And heed me: the Hollow King is just a key. The Deity is unstable, and feels empty.',done:'Remember: the Hollow King is only a key. The Deity is unstable, and feels empty. Ashfall endures because of you.',lock:'Earn the village\u2019s trust first. Help four of my people, then return to me.'}}
 ];
 const VBY={};VILS.forEach(v=>VBY[v.id]=v);
 function acc(lo,hi,o,fb){const pool=ACC.filter(a=>!accOwned.includes(a.id)&&a.rar>=lo&&a.rar<=hi);if(pool.length){const a=pool[Math.random()*pool.length|0];accOwned.push(a.id);o.push(a.name)}else{gold+=fb;o.push('+'+fb+'g bonus')}}
@@ -106,7 +106,7 @@ const vHelped=()=>VILS.filter(v=>v.id!=='maren'&&vq(v.id).s===3).length;
 const vLocked=v=>v.gate&&vHelped()<v.gate&&vq(v.id).s===0;
 function vqEv(t,x){if(!P||!P.vq)return;
  for(const v of VILS){const s=P.vq[v.id];if(!s||s.s!==1)continue;const q=v.q;let add=0;
-  if(q.ev===t){if(t==='layer'){if(x>s.p)s.p=Math.min(x,q.n)}else if(t==='boss')s.p=q.n;else add=1}
+  if(q.ev===t){if(t==='layer'){if(x>s.p)s.p=Math.min(x,q.n)}else if(t==='boss'){if(!q.boss||q.boss===x)s.p=q.n}else add=1}
   else if(q.ev==='elite'&&t==='kill'&&x&&x.el)add=1;
   else if(q.ev==='kill'&&t==='kill')add=1;
   if(add)s.p=Math.min(q.n,s.p+add);
@@ -114,7 +114,7 @@ function vqEv(t,x){if(!P||!P.vq)return;
 const _qe=qEv;qEv=function(t,x){_qe.apply(this,arguments);vqEv(t,x)};
 function vAccept(v){const s=vq(v.id);s.s=1;s.p=0;const q=v.q;
  if(q.ev==='layer')s.p=Math.min(q.n,P.maxLy|0);
- if(q.ev==='boss'&&Object.keys(bossDead||{}).some(k=>bossDead[k]))s.p=q.n;
+ if(q.ev==='boss'&&(q.boss?bossDead[q.boss]:Object.keys(bossDead||{}).some(k=>bossDead[k])))s.p=q.n;
  if(s.p>=q.n)s.s=2;try{sfx.loot()}catch(e){}save()}
 function vClaim(v){const s=vq(v.id);if(s.s!==2)return;const o=[];v.q.give(o);s.s=3;
  try{sfx.loot();sfx.level()}catch(e){}toast('\u2726 '+v.name+': '+o.join(' \u00b7 '));save()}
