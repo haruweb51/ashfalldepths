@@ -615,13 +615,14 @@ win.innerHTML='<div class="rune" style="color:#ffe08a;text-shadow:0 0 20px #ffb8
 document.body.appendChild(win);
 window.__showWin=()=>showWin();
 function showWin(){if(!P)return;paused=true;const ec=bankedEchoes(),av=!!window.AV_WIN;win.querySelector('h2').textContent=av?'The Avatar of Emptiness has fallen':'The Nameless Deity has fallen';$('winTxt').textContent=av?'\u201cSo this is\u2026 what it is to be filled.\u201d':'\u201cWorthy\u2026 at last. Carry a fragment of the light with you.\u201d';$('winEnd').innerHTML=av?'End Run &amp; Claim Blessings':'End Run &amp; Claim Nameless Blessing';
- $('winStats').innerHTML='Level <b>'+P.lvl+'</b> \u00b7 <b>'+Object.keys(bossDead).length+'</b> bosses \u00b7 <b>'+(P.kills||0)+'</b> kills<br><b style="font-size:16px">+'+ec+' \u2756 echoes will be banked</b><br>'+(av?'<span style="color:#ff8a9a">\u2740 Emptiness Filled: all stats +20% permanently</span>'+(BLESS2?' <small>(already owned)</small>':'')+'<br>':'')+'<span style="color:#ffe08a">\u2726 Nameless Blessing: all stats +5% permanently</span>'+(BLESS?' <small>(already owned)</small>':'');
+ $('winStats').innerHTML='Level <b>'+P.lvl+'</b> \u00b7 <b>'+Object.keys(bossDead).length+'</b> bosses \u00b7 <b>'+(P.kills||0)+'</b> kills<br><b style="font-size:16px">+'+ec+' \u2756 echoes will be banked</b><br>'+(av?'<span style="color:#ff8a9a">\u2740 Emptiness Filled: all stats +20% permanently</span>'+(window.DIFF==='easy'?' <small>(invalid on Easy)</small>':BLESS2?' <small>(already owned)</small>':'')+'<br>':'')+'<span style="color:#ffe08a">\u2726 Nameless Blessing: all stats +5% permanently</span>'+(window.DIFF==='easy'?' <small>(invalid on Easy)</small>':BLESS?' <small>(already owned)</small>':'');
  win.classList.remove('hidden');win.classList.remove('go-in');void win.offsetWidth;win.classList.add('go-in')}
-$('winEnd').onclick=()=>{if(!P)return;const av=!!window.AV_WIN;window.AV_WIN=0;const ec=bankedEchoes();meta.echoes+=ec;saveMeta();BLESS=true;if(av){BLESS2=true;try{localStorage.setItem(BKEY2,'1')}catch(e){}}try{localStorage.setItem(BKEY,'1')}catch(e){}
+$('winEnd').onclick=()=>{if(!P)return;const av=!!window.AV_WIN;window.AV_WIN=0;const ec=bankedEchoes();meta.echoes+=ec;saveMeta();const easy=window.DIFF==='easy';   // Easy: Nameless Blessing and Emptiness Filled are invalid
+ if(!easy){BLESS=true;if(av){BLESS2=true;try{localStorage.setItem(BKEY2,'1')}catch(e){}}try{localStorage.setItem(BKEY,'1')}catch(e){}}
  try{localStorage.removeItem(SAVEKEY)}catch(e){}
  leaveHeaven();musStop();win.classList.add('hidden');P=null;paused=true;sheetOpen=false;shopOpen=false;questOpen=false;enemies=[];zones=[];projs=[];parts=[];floats=[];
  for(const i of['hud','hint','mmw','sheet'])$(i).classList.add('hidden');$('toast').textContent='';$('btnContinue').disabled=true;$('runInfo').innerHTML='';
- recalc();updMenu();$('menu').classList.remove('hidden');toast(av?'\u2740 Emptiness Filled received \u2014 all stats +20% (and Nameless Blessing +5%)':'\u2726 Nameless Blessing received \u2014 all stats +5%')};
+ recalc();updMenu();$('menu').classList.remove('hidden');toast(easy?'Easy victory \u2014 blessings are invalid on Easy':av?'\u2740 Emptiness Filled received \u2014 all stats +20% (and Nameless Blessing +5%)':'\u2726 Nameless Blessing received \u2014 all stats +5%')};
 
 // ----- chest respawn tick -----
 let crT=0;const _uf2=updFx;updFx=function(dt){_uf2(dt);crT-=dt;if(crT>0||inHeaven||!P)return;crT=2;const now=Date.now();let ch=0;
