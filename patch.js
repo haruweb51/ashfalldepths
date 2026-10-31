@@ -233,7 +233,7 @@ Object.assign(BSND,{stormstrike:(B,v)=>{for(let i=0;i<4;i++){noise(.15,.2*v,6000
 const BKEY='ashfall_blessing_v1',BKEY2='ashfall_blessing2_v1';let BLESS=false,BLESS2=false;try{BLESS=localStorage.getItem(BKEY)==='1';BLESS2=localStorage.getItem(BKEY2)==='1'}catch(e){}
 const _rc2=recalc;recalc=function(){_rc2();if((!BLESS&&!BLESS2)||typeof P==='undefined'||!P)return;const f=(BLESS?1.05:1)*(BLESS2?1.2:1),fort=P.at.fort,str=P.at.str,agi=P.at.agi;
  S.hp=Math.round((80+fort*10+S.hp)*f-80-fort*10);S.stam=Math.round((80+agi*15+S.stam)*f-80-agi*15);S.post=Math.round((60+fort*4+str*2+S.post)*f-60-fort*4-str*2);
- S.dmg=(1+str*.12+S.dmg)*f-1-str*.12;S.spd=(150+agi*3+S.spd)*f-150-agi*3;S.jump=(1+S.jump)*f-1;S.air=(1+S.air)*f-1;
+ S.dmg=(1+str*.1+S.dmg)*f-1-str*.1;S.spd=(150+agi*3+S.spd)*f-150-agi*3;S.jump=(1+S.jump)*f-1;S.air=(1+S.air)*f-1;
  S.dodge=1-(1-S.dodge)/f;S.atkc=1-(1-S.atkc)/f;S.pdmg=(1+S.pdmg)*f-1;S.parry=S.parry+.05;S.regen=(1+S.regen)*f-1;S.def=1-(1-(S.def||0))/f;
  P.hp=Math.min(P.hp,maxHp());P.stam=Math.min(P.stam,maxStam())};
 const _um=updMenu;updMenu=function(){_um();if(BLESS){const e=$('echoes');e.innerHTML=e.textContent+(BLESS?' &nbsp;\u00b7&nbsp; <span style="color:#ffe08a">\u2726 Nameless Blessing +5%</span>':'')+(BLESS2?' &nbsp;\u00b7&nbsp; <span style="color:#ff8a9a">\u2740 Emptiness Filled +20%</span>':'')}};
