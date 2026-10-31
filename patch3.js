@@ -135,7 +135,7 @@ for(const u of UPG)u[4]=Math.round(u[4]*3);      // everything costs 3x
 // ======================================================================
 const BK='ashfall_badges_v1';let BADG={boss:{},win:{},best:0};
 try{const d=JSON.parse(localStorage.getItem(BK));if(d)BADG=Object.assign(BADG,d)}catch(e){}BADG.boss=BADG.boss||{};BADG.win=BADG.win||{};
-const isDev=()=>!!(window.DEVON&&window.DEVON());
+const isDev=()=>!!(window.DEVON&&window.DEVON())||window.DIFF==='easy';   // easy mode: badges are invalid
 const saveBadges=()=>{try{localStorage.setItem(BK,JSON.stringify(BADG))}catch(e){}};
 const BOSSB=[['ember','Ember Tyrant','\u2739','#ff8a2a'],['glacial','Glacial Devourer','\u2744','#8fd8ff'],['tempest','Tempest Dragon','\u26a1','#ffe84a'],['hollow','Hollow King','\u265b','#b48aff'],['deity','Nameless Deity','\u2726','#f4f1ea'],['avatar','Avatar of Emptiness','\u2740','#ff2a46']];
 {const bd=document.createElement('div');bd.id='badges';$('menu').insertBefore(bd,$('btnContinue'))}
