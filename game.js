@@ -96,9 +96,10 @@ const WK={
  katana:{reach:30,dur:.3,pd:.8,dm:1.05,col:['#f8f6','#fcfa','#fff'],names:['Katana','Night Edge'],draw(){FR(0,-1,8,3,'#222');FR(2,-1,1,3,'#a33');FR(5,-1,1,3,'#a33');FR(8,-3,2,7,'#d9a441');FR(10,-1,20,2,'#e6eeff');FR(10,0,20,1,'#fff')}},
  axe:{reach:24,dur:.46,pd:1.4,dm:1.4,col:['#f446','#f99a','#fff'],names:['Battle Axe','Cleaver'],draw(){FR(0,-1,20,2,'#6a4a2a');cx.fillStyle='#9aa3b5';cx.beginPath();cx.moveTo(16,-1);cx.lineTo(21,-9);cx.quadraticCurveTo(29,0,21,9);cx.lineTo(16,1);cx.fill();cx.strokeStyle='#fff';cx.lineWidth=1;cx.beginPath();cx.moveTo(21,-9);cx.quadraticCurveTo(29,0,21,9);cx.stroke()}}};
 const KINDS=Object.keys(WK),wd=()=>WK[P.weapon.kind]||WK.sword;
+const WCAP=ri=>Math.round(30*RAR[ri][2]/1.8);   // basic weapons hard-cap at 30 base damage at Legendary (lower tiers scale down)
 function rollWeapon(lvl,rarIdx,R=Math.random){const ri=rarIdx??(()=>{const q=R();return q<.6?0:q<.85?1:q<.95?2:q<.99?3:4})();
  const k=KINDS[R()*KINDS.length|0],K=WK[k],nm=K.names[R()*K.names.length|0];
- return{id:uid++,type:'weapon',kind:k,name:RAR[ri][0]+' '+nm,rar:ri,dmg:Math.round((8+lvl*1.5)*RAR[ri][2]*K.dm),speed:1}}
+ return{id:uid++,type:'weapon',kind:k,name:RAR[ri][0]+' '+nm,rar:ri,dmg:Math.min(WCAP(ri),Math.round((8+lvl*1.5)*RAR[ri][2]*K.dm)),speed:1}}
 const SLOTS=['head','neck','arms','legs'];
 const PRICE_MULT=2.5;
 const ACC=[['iron_crown','head','Iron Crown',0,40,{hp:15,post:8}],['hunter_band','head',"Hunter's Headband",0,35,{spd:6,stam:8}],['focus_circlet','head','Circlet of Focus',1,90,{dmg:.06}],
@@ -136,7 +137,7 @@ const keys={},mouse={x:0,y:0,l:false,r:false};
 function newPlayer(){return{x:0,y:0,w:12,h:22,vx:0,vy:0,face:1,hp:100,stam:100,post:0,lvl:1,xp:0,pts:3+meta.up.pts,lives:MAXL,kills:0,maxLy:0,at:{str:1,agi:1,fort:1},
  el:3,ecd:0,air:1,atkC:false,coyote:0,jbuf:0,atk:0,atkPhase:0,atkHit:false,combo:0,blockT:-9,blocking:false,dodge:0,inv:0,stun:0,weapon:rollWeapon(1,0),guardBroken:0,onGround:false}}
 const maxHp=()=>window.FISH?1:80+P.at.fort*10+S.hp,maxStam=()=>80+P.at.agi*15+S.stam,maxPost=()=>60+P.at.fort*4+P.at.str*2+S.post;
-const dmgOut=()=>Math.round(P.weapon.dmg*(1+P.at.str*.12+S.dmg+enc('dmg'))*(window.dmgMult?window.dmgMult():1));
+const dmgOut=()=>Math.round(P.weapon.dmg*(1+P.at.str*.1+S.dmg+enc('dmg'))*(window.dmgMult?window.dmgMult():1));
 const xpNeed=l=>Math.round(40*Math.pow(l,1.45));
 function toast(s){const t=document.getElementById('toast');t.textContent=s;clearTimeout(toast.h);toast.h=setTimeout(()=>t.textContent='',2200)}
 function mkE(x,y,deep){return{x,y,w:14,h:22,vx:0,vy:0,hp:deep?55:35,max:deep?55:35,post:0,pmax:deep?50:30,st:'chase',t:0,face:1,lvl:deep?3:1,dead:false,hit:false,home:x}}
@@ -419,7 +420,7 @@ function hud(){$('hud').classList.remove('hidden');$('mmw').classList.remove('hi
  const w=$('hWpn');w.textContent=P.weapon.name+enchTxt(P.weapon)+' · '+dmgOut()+' dmg';w.style.color=RAR[P.weapon.rar][1];$('hPts').textContent=P.pts?'\u2726 '+P.pts+' points to spend (Tab)':''}
 
 // ---- Character sheet ----
-function drawSheet(){const names={str:['Strength','+12% damage, +2 max posture each'],agi:['Agility','+15 stamina, +3 speed each'],fort:['Fortitude','+10 HP, +4 max posture each']};
+function drawSheet(){const names={str:['Strength','+10% damage, +2 max posture each'],agi:['Agility','+15 stamina, +3 speed each'],fort:['Fortitude','+10 HP, +4 max posture each']};
  let h=`<h1>CHARACTER</h1><div>Level ${P.lvl} · XP ${P.xp}/${xpNeed(P.lvl)} · ${gold} gold · Points: ${P.pts}</div><hr>`;
  for(const k in names)h+=`<div class="row"><span><b>${names[k][0]}</b> ${P.at[k]}<br><small>${names[k][1]}</small></span><button data-a="${k}" ${P.pts?'':'disabled'}>+</button></div>`;
  h+=`<hr><b>Equipped:</b> <span style="color:${RAR[P.weapon.rar][1]}">${P.weapon.name}</span> (${P.weapon.dmg} base)${enchSheet(P.weapon)}<br><b>Damage:</b> ${dmgOut()} · HP ${maxHp()} · Stamina ${maxStam()} · Posture ${maxPost()}<br><small>${SLOTS.map(sl=>sl+': '+(ACCB[eq[sl]]?ACCB[eq[sl]].name:'-')).join(' \u00b7 ')}</small><hr><b>Inventory (${inv.length}/20)</b>`;
