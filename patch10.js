@@ -11,7 +11,7 @@
 const $=id=>document.getElementById(id);
 const DIFFS=[
  {id:'easy',n:'Easy',ab:'EZ',c:'#7fe08a',hp:.75,dmg:1,xp:1,ec:.5,
-  d:'Every enemy and boss has 25% less HP. Echoes are 50% lower. Badges are invalid.'},
+  d:'Every enemy and boss has 25% less HP. Echoes are 50% lower. Badges, the Nameless Blessing and Emptiness Filled are invalid.'},
  {id:'normal',n:'Normal',ab:'NM',c:'#e8dcc8',hp:1,dmg:1,xp:1,ec:1,
   d:'The standard descent. Victory earns the Normal badge.'},
  {id:'hard',n:'Hard',ab:'HD',c:'#ffb347',hp:2,dmg:1.3,xp:1,ec:1.2,
