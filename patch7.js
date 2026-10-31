@@ -52,7 +52,7 @@
  WN.icescythe='Rimefang, Glacial Scythe';
  if(BD.glacial)BD.glacial.wpn='icescythe';
  // old Frostbite Edges already in a pack are converted so the drop is not duplicated
- const upgradeOld=w=>{if(w&&w.kind==='odachi'&&!w.d100){w.d100=1;w.dmg=100}   // existing Gale Odachis are set to base 100 once
+ const upgradeOld=w=>{if(w&&w.kind==='odachi'&&!w.d60){w.d60=1;w.dmg=60}   // existing Gale Odachis are set to base 60 once
   if(w&&w.kind==='frostbite'&&w.unique){w.kind='icescythe';w.name=WN.icescythe;w.dmg=Math.max(w.dmg|0,WK.icescythe.bd)}};
  const _ugi=setInterval(()=>{try{if(typeof inv!=='undefined'){inv.forEach(upgradeOld);if(P&&P.weapon)upgradeOld(P.weapon)}}catch(e){}},1500);
 
@@ -84,7 +84,7 @@
  // each M1 swing gets an id so the combo advances once per swing (not once per enemy hit)
  const _ta7=tryAttack;tryAttack=function(){const a=P?P.atk:0;_ta7.apply(this,arguments);if(P&&P.atk>a){P.swId=(P.swId|0)+1;if(P.weapon&&P.weapon.kind==='odachi')P.odN=(P.odS&&time-(P.odT||-9)<.6)?(P.odS%5)+1:1}};
  window.giveGaleOdachi=function(o){
-  const lvl=Math.max(1,P.lvl+3),w={id:uid++,type:'weapon',kind:'odachi',name:'Gale Odachi',rar:4,dmg:100,speed:1};
+  const lvl=Math.max(1,P.lvl+3),w={id:uid++,type:'weapon',kind:'odachi',name:'Gale Odachi',rar:4,dmg:60,speed:1,d60:1};
   if(inv.length<20){inv.push(w);o.push(w.name);return}
   let idx=inv.findIndex(i=>i&&i.type==='weapon'&&i.rar===0);       // bag full: it takes the place of a Common weapon
   if(idx<0){let br=9;inv.forEach((i,j)=>{if(i&&i.type==='weapon'&&i.rar<br){br=i.rar;idx=j}})}
