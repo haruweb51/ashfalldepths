@@ -104,7 +104,7 @@
   setTimeout(()=>{if(P)toast('✦ Boss slain · +'+n+(n>1?' levels':' level')+(B.rs?' · treasure cache appeared':''))},2600)};
 
 
- // ---- Judgement Cut (Gale Odachi stage V): 8 slashes = 500% burst, heavy boss posture, full cinematic ----
+ // ---- Judgement Cut (Gale Odachi stage V): 8 slashes = 300% burst, heavy boss posture, full cinematic ----
  const JC=[];let jcO=[0,0];
  const mkJC=(x,y,n,big,dmg)=>{const sl=[];for(let i=0;i<n;i++){const a=(i%2?.75:-.75)+(i*.31)+(Math.random()-.5)*.9;sl.push({a,l:(big?170:90)+Math.random()*(big?110:40),c:(Math.random()-.5)*(big?70:30),ox:(Math.random()-.5)*(big?26:14),oy:(Math.random()-.5)*(big?26:14),t:(big?.16:.05)+i*(big?.045:.04),d:0})}
   JC.push({x,y,t0:time,n,big,dmg,s:sl,fin:(big?.16:.05)+n*(big?.045:.04),fd:0})};
@@ -115,9 +115,9 @@
   if(!main&&!pk&&!o.tdummy&&o.hp<=0&&!o.dead)dotE(o,0)}
  function judgementCut(e,d,mx,my){
   const N=8,first=jcSw!==P.swId;jcSw=P.swId;
-  jcDmg(e,d*5*CM(),true);                                                 // 500% burst x crit multiplier (x2 + Ruthlessness) = 1000%+ burst damage
+  jcDmg(e,d*3*CM(),true);                                                 // 300% burst x crit multiplier (x2 + Ruthlessness) = 600%+ burst damage
   if(!e.tpoke&&!e.tdummy)e.post=(e.post||0)+(e.boss?130:50);          // heavy posture damage (bosses nearly break)
-  mkJC(mx,my,first?N:4,first,Math.round(d*5/(first?N:4)*CM()));
+  mkJC(mx,my,first?N:4,first,Math.round(d*3/(first?N:4)*CM()));
   for(const o of enemies){if(o===e||o.dead||o.boss||o.tdummy||o.tpoke)continue;
    if(Math.hypot(o.x-e.x,o.y-e.y)<120){jcDmg(o,d*2.5*CM(),false);o.post=(o.post||0)+20;mkJC(o.x+(o.w||14)/2,o.y+(o.h||22)/2,4,false,Math.round(d*2.5/4*CM()));float(o.x,o.y-10,'CUT','#bfd')}}
   if(first){float(e.x,e.y-48,'JUDGEMENT CUT','#fff');hitstop=Math.max(hitstop||0,.5);
@@ -177,7 +177,7 @@
   scimitar:['Twin Strike','20% chance to strike again for 50% damage'],
   katana:['Precision','15% chance to crit (x2 damage)'],
   axe:['Sunder','+15% damage to enemies below 50% HP'],
-  odachi:['Gale Rhythm','5-stage M1 combo (resets after 0.6s without a hit): I +10% dmg \u00b7 II +20%, 3 stamina & heal 5% max HP \u00b7 III +30% & cleave \u00b7 IV +45%, GUARANTEED CRIT (crit damage: x2 + Ruthlessness) & posture break \u00b7 V Judgement Cut: 8 slashes, EVERY slash crits (x2 + Ruthlessness) for a 1000%+ damage burst and heavy posture damage (bosses nearly break)'],
+  odachi:['Gale Rhythm','5-stage M1 combo (resets after 0.6s without a hit): I +10% dmg \u00b7 II +20%, 3 stamina & heal 5% max HP \u00b7 III +30% & cleave \u00b7 IV +45%, GUARANTEED CRIT (crit damage: x2 + Ruthlessness) & posture break \u00b7 V Judgement Cut: 8 slashes, EVERY slash crits (x2 + Ruthlessness) for a 600%+ damage burst and heavy posture damage (bosses nearly break)'],
   icescythe:['Shatter','Strikes chill and slow. Chilled foes take +25% damage; the 3rd chill SHATTERS them: 150% burst damage, 70% to nearby foes, bosses lose heavy posture.'],
   scythe:['Soul Harvest',w=>'Lifesteal: heal '+(Math.round(lsPct(w)*1000)/10)+'% of max HP per hit']};
  const passTxt=w=>{const p=w&&PASS[w.kind];if(!p)return'';return p[0]+': '+(typeof p[1]==='function'?p[1](w):p[1])};
