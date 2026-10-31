@@ -73,9 +73,10 @@ const _um10=updMenu;updMenu=function(){_um10.apply(this,arguments);if(!P)window.
 
 // ---------- enemy / boss HP scaling (lazy, so every spawn path and respawn is covered) ----------
 function scaleEnemies(){
- const D=cur();if(window.TUTON)return;
+ const D=cur();
  for(const e of enemies){
-  if(!e||e.tpoke||e.tdummy||!(e.max>0)||e.max>=1e8||(e.def&&e.def.noDie))continue;
+  if(!e||e.tdummy||!(e.max>0)||e.max>=1e8||(e.def&&e.def.noDie))continue;
+  if(window.TUTON&&!e.tpoke)continue;      // tutorial: only Poke (the secret boss) is affected by difficulty
   if(e.dsc!==e.max){                     // new enemy, or the game changed its max HP (e.g. the Avatar's transformation)
    if(D.hp!==1){const r=D.hp;e.max=Math.max(1,Math.round(e.max*r));if(e.hp>1)e.hp=Math.max(1,Math.round(e.hp*r))}
    e.dsc=e.max}}}
@@ -84,7 +85,7 @@ const _uf10=updFx;updFx=function(dt){if(P)scaleEnemies();return _uf10.apply(this
 // ---------- damage taken / XP / echoes ----------
 const _hp10=hurtPlayer;hurtPlayer=function(dmg,pd,from,br){
  const D=cur();
- if(P&&!window.TUTON&&D.dmg!==1&&dmg>0&&!(from&&from.def&&from.def.noDie))dmg*=D.dmg;
+ if(P&&(!window.TUTON||enemies.some(e=>e&&e.tpoke&&!e.dead))&&D.dmg!==1&&dmg>0&&!(from&&from.def&&from.def.noDie))dmg*=D.dmg;
  return _hp10.call(this,dmg,pd,from,br)};
 const _gx10=gainXp;gainXp=function(n){const D=cur();if(P&&D.xp!==1&&n>0)n=n*D.xp;return _gx10.call(this,n)};
 {const _em=window.echoMult;window.echoMult=function(){const m=_em?_em.apply(this,arguments):1;return m*(P?cur().ec:1)}}
