@@ -477,7 +477,7 @@ ASET.push({n:'Developer Plate',rar:4,p:0,def:0,wt:0,c:['#101018','#ff2a46','#7ff
 {const DS=ASET.length-1;for(const sl of ASL){const a={id:'dev_'+sl,set:DS,slot:sl,name:'Developer '+ASN[sl],rar:4,def:0,wt:0,price:0,pas:'+1250 max HP (dev forge \u2014 4 pieces = +5000)'};ARMS.push(a);ARMB[a.id]=a}}
 {const _rcF=recalc;recalc=function(){_rcF();if(typeof P!=='undefined'&&P)for(const sl of ASL)if(armEq[sl]==='dev_'+sl)S.hp+=1250;if(P){P.hp=Math.min(P.hp,maxHp())}}}
 {const _dmF=window.dmgMult;window.dmgMult=function(){const m=_dmF?_dmF():1;
- if(P&&P.weapon&&P.weapon.dev){const base=P.weapon.dmg*(1+P.at.str*.12+S.dmg+(typeof enc==='function'?enc('dmg'):0));return base>0?5000/base:1}return m}}
+ if(P&&P.weapon&&P.weapon.dev){const base=P.weapon.dmg*(1+P.at.str*.1+S.dmg+(typeof enc==='function'?enc('dmg'):0));return base>0?5000/base:1}return m}}
 {const _wfD=wfx;wfx=function(e,d){_wfD(e,d);if(P&&P.weapon&&P.weapon.dev&&d>0){const h=Math.ceil(d);P.hp=Math.min(maxHp(),P.hp+h);float(P.x,P.y-14,'+'+h,'#7f9');burst(P.x+6,P.y+10,4,'#c8f')}}}
 {const _esD=enchSheet;enchSheet=function(w){const s=_esD(w);return w&&w.dev?'<br><small style="color:#ffb347">\u2726 Devour: Heal 100% of damage dealt.</small>'+s:s}}
 window.giveForge=function(){if(!P)return;
