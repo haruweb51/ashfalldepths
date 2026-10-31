@@ -29,7 +29,23 @@ const TAL=[
  {id:'eye',n:'Keen Eye',req:{agi:10,str:5},d:'Your parry window is 0.04s longer.'},
  {id:'thirst',n:'Bloodthirst',req:{str:10,fort:5},d:'Killing an enemy restores 5% of your max HP.'},
  {id:'slip',n:'Slipstream Strike',req:{agi:12},d:'For 3s after dodging, deal 15% more damage.'},
- {id:'vet',n:'Veteran',req:{str:10,agi:10,fort:10},d:'+8% damage and 8% less damage taken.'}
+ {id:'vet',n:'Veteran',req:{str:10,agi:10,fort:10},d:'+8% damage and 8% less damage taken.'},
+ {id:'tough',n:'Iron Constitution',req:{fort:12},d:'+40 max HP.'},
+ {id:'blade',n:'Blade Dancer',req:{agi:15,str:5},d:'Attack 5% faster.'},
+ {id:'brute',n:'Brute Force',req:{str:8},d:'+4% damage and +10 max posture.'},
+ {id:'adren',n:'Adrenaline',req:{agi:8},d:'Killing an enemy restores 10 stamina.'},
+ {id:'exec',n:'Executioner\u2019s Eye',req:{str:12},d:'+20% damage to enemies below 35% HP.'},
+ {id:'elite',n:'Elite Hunter',req:{str:5},d:'+15% damage against elite enemies.'},
+ {id:'lifeline',n:'Lifeline',req:{fort:10},d:'Dropping below 25% HP heals you for 25% of your max HP (90s cooldown).'},
+ {id:'riposte',n:'Riposte',req:{agi:10,str:8},d:'After a parry, your next 4s of attacks deal 30% more damage.'},
+ {id:'steadfast',n:'Steadfast',req:{fort:6},d:'Take 10% less damage while below 30% HP.'},
+ {id:'spring',n:'Springheel',req:{agi:6},d:'+8% jump height.'},
+ {id:'fortune',n:'Fortune\u2019s Favor',req:{},d:'+25% gold from chests.'},
+ {id:'giant',n:'Giant Slayer',req:{str:15},d:'+12% damage against bosses.'},
+ {id:'glass',n:'Glass Cannon',req:{str:20,agi:10},maj:1,d:'+20% damage, but you take 15% more damage.'},
+ {id:'rampage',n:'Rampage',req:{str:25},maj:1,d:'Each kill grants +4% damage for 8s, stacking up to 5 times.'},
+ {id:'colossus',n:'Colossus',req:{fort:25,str:10},maj:1,d:'+60 max HP and +40 max posture.'},
+ {id:'bulwark',n:'Bulwark',req:{fort:18,agi:8},maj:1,d:'Each successful parry restores 6% max HP and 10 stamina.'}
 ];
 const byId={};TAL.forEach(t=>byId[t.id]=t);
 const KEY=()=>SAVEKEY+'_tal';
@@ -71,9 +87,9 @@ const VILS=[
    give(o){const m=ELX_MAX||6;P.el=Math.max(P.el|0,m);o.push('elixirs refilled');gold+=300;o.push('+300g');acc(0,2,o,150)}},
   say:{offer:'The Moonpetal only blooms for those who keep their nerve. Parry twelve blows for me \u2014 steady hands make the finest brews.',act:'Twelve parries, dear. Raise your guard just as the blow lands.',rdy:'Twelve! Your hands know the rhythm now. Here \u2014 my finest brew and a little something extra.',done:'The petals glow brighter ever since you visited.'}},
  {id:'brannoc',name:'Brannoc',title:'Village Smith',home:-302,rng:0,spd:0,kind:'smith',pal:{skin:'#d9a07a',hair:'#5a2a14',c1:'#5a3a24',c2:'#3a2414',c3:'#c9c9d6',boots:'#2a1a12'},
-  q:{t:'A Proper Blade',ev:'kill',n:25,d:'Slay 25 enemies.',rw:'An Epic weapon forged by Brannoc \u00b7 120 XP',
-   give(o){if(inv.length<20){const w=rollWeapon(Math.max(1,P.lvl+2),3);w.name="Brannoc's "+w.name;inv.push(w);o.push(w.name)}else{gold+=250;o.push('+250g (pack full)')}gainXp(120)}},
-  say:{offer:'A blade is only as good as the arm swinging it. Cut down twenty-five of those cave-crawlers and I\u2019ll forge you something proper.',act:'Twenty-five, mind. I can hear the anvil getting impatient.',rdy:'Twenty-five! Hah! Hold out your hand \u2014 this one\u2019s still warm.',done:'Every spark from this forge remembers your name.'}},
+  q:{t:'A Proper Blade',ev:'kill',n:25,d:'Slay 25 enemies.',rw:'900 gold \u00b7 400 XP',
+   give(o){gold+=900;o.push('+900g');gainXp(400);o.push('+400 XP')}},
+  say:{offer:'A blade is only as good as the arm swinging it. Cut down twenty-five of those cave-crawlers and I\u2019ll see you paid properly.',act:'Twenty-five, mind. I can hear the anvil getting impatient.',rdy:'Twenty-five! Hah! Hold out your hand \u2014 honest coin and honest thanks.',done:'Every spark from this forge remembers your name.'}},
  {id:'tolliver',name:'Old Tolliver',title:'Retired Miner',home:-443,rng:18,spd:10,kind:'miner',pal:{skin:'#c99a78',hair:'#b9b9c4',c1:'#6a5a3a',c2:'#4a3e28',c3:'#d4a020',boots:'#2a2018'},
   q:{t:'Hollow Hands',ev:'mine',n:50,d:'Break 50 blocks.',rw:'700 gold \u00b7 40 echoes \u00b7 a Rare+ accessory',
    give(o){gold+=700;o.push('+700g');meta.echoes+=40;saveMeta();o.push('+40 echoes');acc(2,3,o,200)}},
@@ -374,7 +390,13 @@ const _rc=recalc;recalc=function(){_rc();if(typeof P==='undefined'||!P||!P.tal)r
  if(tHas('bulldoze'))S.pdmg+=.2;
  if(tHas('steady'))S.dodge=1-(1-S.dodge)*.6;
  if(tHas('reinf'))S.def=1-(1-(S.def||0))*.8;
- if(tHas('vet'))S.def=1-(1-(S.def||0))*.92};
+ if(tHas('vet'))S.def=1-(1-(S.def||0))*.92;
+ if(tHas('tough'))S.hp+=40;
+ if(tHas('colossus')){S.hp+=60;S.post+=40}
+ if(tHas('blade'))S.atkc=(S.atkc||0)+.05;
+ if(tHas('brute')){S.dmg+=.04;S.post+=10}
+ if(tHas('glass'))S.dmg+=.2;
+ if(tHas('spring'))S.jump=(S.jump||0)+.08};
 
 const _dm=window.dmgMult;window.dmgMult=function(){let m=_dm?_dm():1;if(!P||!P.tal||!P.tal.length)return m;
  const r=clamp(P.hp/Math.max(1,maxHp()),0,1);
@@ -383,9 +405,13 @@ const _dm=window.dmgMult;window.dmgMult=function(){let m=_dm?_dm():1;if(!P||!P.t
  if(tHas('berserk'))m*=1+(1-r);
  if(tHas('slip')&&P.tSlip>0)m*=1.15;
  if(tHas('bulldoze')&&TT&&(TT.st==='broken'||TT.st==='stagger'))m*=1.5;
+ if(TT&&TT.max>0){if(tHas('exec')&&TT.hp/TT.max<.35)m*=1.2;if(tHas('elite')&&TT.el)m*=1.15;if(tHas('giant')&&TT.boss)m*=1.12}
+ if(tHas('riposte')&&P.rpT>0)m*=1.3;
+ if(tHas('rampage')&&P.rampT>0)m*=1+.04*(P.rampN|0);
  return m};
 const _he=hitEnemy;hitEnemy=function(e){const pv=TT,was=!!(e&&!e.dead&&!e.boss);TT=e;let r;try{r=_he.apply(this,arguments)}finally{TT=pv}
- if(was&&e.dead&&P&&tHas('thirst')){const h=Math.round(maxHp()*.05);P.hp=Math.min(maxHp(),P.hp+h);float(P.x,P.y-14,'+'+h,'#7f7')}return r};
+ if(was&&e.dead&&P&&tHas('thirst')){const h=Math.round(maxHp()*.05);P.hp=Math.min(maxHp(),P.hp+h);float(P.x,P.y-14,'+'+h,'#7f7')}
+ if(was&&e.dead&&P&&P.tal){if(tHas('adren'))P.stam=Math.min(maxStam(),P.stam+10);if(tHas('rampage')){P.rampN=Math.min(5,(P.rampT>0?P.rampN|0:0)+1);P.rampT=8;float(P.x,P.y-24,'RAMPAGE x'+P.rampN,'#f96')}}return r};
 const _hb=hitBoss;hitBoss=function(B){const pv=TT;TT=B;try{return _hb.apply(this,arguments)}finally{TT=pv}};
 
 const _td=tryDodge;tryDodge=function(){const was=P?P.dodge:0;const r=_td.apply(this,arguments);if(P&&was<=0&&P.dodge>0){P.vdc=0;if(P.tal)onDodge()}return r};
@@ -399,7 +425,9 @@ const _up=updPlayer;updPlayer=function(dt){_up.apply(this,arguments);if(!P||!P.t
  // hands are granted by LEVEL COUNT, so any source of levels (kills, quests, tutorial reward...) counts
  const owed=Math.floor(P.lvl/3)-(P.tgr|0);if(owed>0){P.tgr=Math.floor(P.lvl/3);P.thands=(P.thands|0)+owed;save();hnToast=1.2}
  if(hnToast>0){hnToast-=dt;if(hnToast<=0)toast('\u2726 A talent hand awaits at the Talent Shrine (spawn village)')}
- for(const k of['gCd','rCd','rmCd','rmWard','tSlip'])if(P[k]>0)P[k]=Math.max(0,P[k]-dt);
+ if(tHas('lifeline')&&!P.dead&&P.hp>0&&P.hp<maxHp()*.25&&!(P.lfCd>0)){P.lfCd=90;const h=Math.round(maxHp()*.25);P.hp=Math.min(maxHp(),P.hp+h);float(P.x,P.y-20,'LIFELINE +'+h,'#9f9');burst(P.x+6,P.y+11,16,'#9f9')}
+ if(P.rampT>0&&P.rampT-dt<=0)P.rampN=0;
+ for(const k of['gCd','rCd','rmCd','rmWard','tSlip','lfCd','rpT','rampT'])if(P[k]>0)P[k]=Math.max(0,P[k]-dt);
  if(P.rT>0){P.rT-=dt;if(!P.dead)P.hp=Math.min(maxHp(),P.hp+10*dt)}
  if(P.gT>0){P.gT-=dt;P.inv=Math.max(P.inv,.02);for(const e of enemies)if(!e.boss&&!e.dead&&e.st==='chase'){e.st='idle';e.vx=0}}};
 const _hd=heroDraw;heroDraw=function(){if(P&&P.gT>0){cx.save();cx.globalAlpha=.2;try{return _hd.apply(this,arguments)}finally{cx.restore()}}return _hd.apply(this,arguments)};
@@ -428,6 +456,14 @@ if(window.SPD_)for(const sp of window.SPD_)if(sp.t==='debuff'){const f=sp.fn;sp.
 
 const _gx=gainXp;gainXp=function(n){if(P&&tHas('study'))n=n*1.1;return _gx.call(this,n)};
 const _dl=dropLoot;dropLoot=function(e){const g0=gold,r=_dl.apply(this,arguments);if(tHas('scav')&&gold>g0)gold+=Math.round((gold-g0)*.15);return r};
+const _oc6=openChest;openChest=function(c){const g0=gold,r=_oc6.apply(this,arguments);if(P&&tHas('fortune')&&gold>g0)gold+=Math.round((gold-g0)*.25);return r};
+// damage-taken talents (Glass Cannon, Steadfast) and parry talents (Riposte, Bulwark)
+const _hp6=hurtPlayer;hurtPlayer=function(dmg,pd,from,br){
+ if(P&&P.tal&&P.tal.length&&dmg>0){let m=1;if(tHas('glass'))m*=1.15;if(tHas('steadfast')&&P.hp<maxHp()*.3)m*=.9;dmg*=m}
+ const r=_hp6.call(this,dmg,pd,from,br);
+ if(r==='parry'&&P&&P.tal){if(tHas('riposte')){P.rpT=4;float(P.x,P.y-24,'RIPOSTE','#fd8')}
+  if(tHas('bulwark')){const h=Math.round(maxHp()*.06);P.hp=Math.min(maxHp(),P.hp+h);P.stam=Math.min(maxStam(),P.stam+10);float(P.x,P.y-30,'+'+h,'#7f7')}}
+ return r};
 
 // =====================================================================
 //  UI: talent cards + villager dialogue
