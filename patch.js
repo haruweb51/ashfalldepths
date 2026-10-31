@@ -108,10 +108,10 @@ wfx=function(e,d){enchFx(e,d);const k=P.weapon.kind;if(!PASS[k])return;const cxm
 const _es=enchSheet;enchSheet=function(w){const s=_es(w);return w&&w.unique&&PASS[w.kind]?'<br><small style="color:#ffb347">\u2726 '+PASS[w.kind][0]+': '+PASS[w.kind][1]+'</small>'+s:s};
 
 // ---------- 12. Elixir upgrades · spells · echo upgrades · crit & passives · unique boss armor ----------
-const ELXT=[[45,6],[67,6],[120,7],[160,15]];let ELXL=0;const elxCost=()=>Math.round(1000*(ELXL+1)*(window.PRICEM||1));
+const ELXT=[[45,6],[67,6],[120,7],[160,8],[200,9]];let ELXL=0;const elxCost=()=>Math.round(1000*(ELXL+1)*(window.PRICEM||1));
 function applyElx(){ELX_HEAL=ELXT[ELXL][0];ELX_MAX=ELXT[ELXL][1]}
 const _er0=elixRow;elixRow=function(){let h=_er0();const nx=ELXT[ELXL+1],cu=ELXT[ELXL];
- return h+(nx?`<div class="row"><span><b style="color:#7fff9a">Elixir Upgrade</b> <small>Lv ${ELXL}/3</small><br><small>${cu[0]} heal \u00b7 ${cu[1]} carry \u2192 ${nx[0]} heal \u00b7 ${nx[1]} carry</small></span><span><small style="color:#ffd36b">${elxCost()}g</small> <button data-eu="1" ${gold<elxCost()?'disabled':''}>Upgrade</button></span></div>`
+ return h+(nx?`<div class="row"><span><b style="color:#7fff9a">Elixir Upgrade</b> <small>Lv ${ELXL}/4</small><br><small>${cu[0]} heal \u00b7 ${cu[1]} carry \u2192 ${nx[0]} heal \u00b7 ${nx[1]} carry</small></span><span><small style="color:#ffd36b">${elxCost()}g</small> <button data-eu="1" ${gold<elxCost()?'disabled':''}>Upgrade</button></span></div>`
   :`<div class="row"><span><b style="color:#7fff9a">Elixir Upgrade</b> <small>MAX \u00b7 ${cu[0]} heal \u00b7 ${cu[1]} carry</small></span></div>`)};
 
 // --- echo upgrades (more stats + expensive passives) ---
@@ -151,7 +151,7 @@ function spellHTML(){let h='<hr><b>SPELLS</b> <small>(keys Z / X \u00b7 cost sta
  for(const s of SPD){const own=SPL.own.includes(s.id);h+=`<div class="row"><span><b style="color:${s.t==='self'?'#7fd0ff':'#d98cff'}">${s.n}</b> <small>${s.t==='self'?'Self buff':'Enemy debuff'} \u00b7 ${spCost(s)} stamina \u00b7 ${s.cd}s cooldown</small><br><small>${s.d}</small></span><span>`
   +(own?`<button data-se="${s.id}:z" ${SPL.z===s.id?'disabled':''}>${SPL.z===s.id?'Z \u2713':'Equip Z'}</button><button data-se="${s.id}:x" ${SPL.x===s.id?'disabled':''}>${SPL.x===s.id?'X \u2713':'Equip X'}</button>`:`<small style="color:#ffd36b">${s.g}g</small> <button data-sb="${s.id}" ${gold<s.g?'disabled':''}>Buy</button>`)+'</span></div>'}
  return h}
-function bindShop2(){sheet.querySelectorAll('[data-eu]').forEach(b=>b.onclick=()=>{const c=elxCost();if(ELXL>=3||gold<c)return;gold-=c;ELXL++;applyElx();sfx.loot();save();drawShop()});
+function bindShop2(){sheet.querySelectorAll('[data-eu]').forEach(b=>b.onclick=()=>{const c=elxCost();if(ELXL>=4||gold<c)return;gold-=c;ELXL++;applyElx();sfx.loot();save();drawShop()});
  sheet.querySelectorAll('[data-sb]').forEach(b=>b.onclick=()=>{const s=SPD.find(x=>x.id===b.dataset.sb);if(!s||gold<s.g||SPL.own.includes(s.id))return;gold-=s.g;SPL.own.push(s.id);if(!SPL.z)SPL.z=s.id;else if(!SPL.x)SPL.x=s.id;sfx.loot();save();drawShop()});
  sheet.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>{const[id,sl]=b.dataset.se.split(':'),o=sl==='z'?'x':'z';if(SPL[o]===id)SPL[o]=null;SPL[sl]=id;sfx.loot();save();drawShop()})}
 {const hs=document.createElement('div');hs.id='hSpl';hs.style.cssText='font-size:12px;letter-spacing:1px;text-shadow:0 1px 3px #000';const inf=document.querySelector('#hud .info');if(inf)inf.appendChild(hs)}
@@ -212,7 +212,7 @@ let AUR=0;const _uf3=updFx;updFx=function(dt){_uf3(dt);if(!P||paused)return;
 
 // --- persistence (spells + elixir level) ---
 const _sv3=save;save=function(){_sv3();try{const d=JSON.parse(localStorage.getItem(SAVEKEY));if(d){d.spl={own:SPL.own,z:SPL.z,x:SPL.x};d.elxL=ELXL;localStorage.setItem(SAVEKEY,JSON.stringify(d))}}catch(e){}};
-const _ld3=load;load=function(){const r=_ld3();if(r){try{const d=JSON.parse(localStorage.getItem(SAVEKEY));SPL.own=(d.spl&&d.spl.own)||[];SPL.z=(d.spl&&d.spl.z)||null;SPL.x=(d.spl&&d.spl.x)||null;SPL.cd={};ELXL=Math.max(0,Math.min(3,d.elxL|0));applyElx()}catch(e){}}return r};
+const _ld3=load;load=function(){const r=_ld3();if(r){try{const d=JSON.parse(localStorage.getItem(SAVEKEY));SPL.own=(d.spl&&d.spl.own)||[];SPL.z=(d.spl&&d.spl.z)||null;SPL.x=(d.spl&&d.spl.x)||null;SPL.cd={};ELXL=Math.max(0,Math.min(4,d.elxL|0));applyElx()}catch(e){}}return r};
 const _st3=start;start=function(n){const had=!!localStorage.getItem(SAVEKEY);const r=_st3(n);if(n||!had){SPL.own=[];SPL.z=SPL.x=null;SPL.cd={};ELXL=0;applyElx()}camFocus=null;return r};
 applyElx();
 
